@@ -7,15 +7,31 @@ module.exports = {
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
   getPersons: `select first_name,last_name,address,designation,phone,email from persons`,
   qGetRoughCurrentStatus: `
+  with last_status as (
+    select max(id),rough_id from rough_history group by rough_id
+  ),
+  all_data as (
+    select r.u_uuid as rough_id,lot_name,rough_name,price,status,start_date,end_date 
+    from 
+    rough_history as h 
+    inner join last_status as l on l.max=h.id 
+    inner join persons as  p on p.id = h.person_id
+    right join roughs as r on r.id=h.rough_id   
+  )
+  select * from all_data`,
+  qGetRoughCurrentStatusByRoughId: `
     with last_status as (
-      select max(id),rough_id from rough_history group by rough_id
+      select max(id),rough_id from rough_history where rough_id=:rough_id
+      group by rough_id
     ),
     all_data as (
       select h.u_uuid as rough_id,lot_name,rough_name,price,status,start_date,end_date 
-      from rough_history as h 
-      inner join roughs as r on r.id=h.rough_id 
+      from 
+      rough_history as h 
       inner join last_status as l on l.max=h.id 
       inner join persons as  p on p.id = h.person_id
+      right join roughs as r on r.id=h.rough_id
+      where r.id=:rough_id
     )
     select * from all_data`,
   getRoughHistory: `select h.id,h.u_uuid,first_name,last_name,status,start_date,end_date 
@@ -23,6 +39,9 @@ module.exports = {
     inner join persons p on h.person_id=p.id
     where rough_id=1 order by h.id desc`,
 
+  getRoughDetail: `select r.id,r.u_uuid as rough_id,rough_name,weight,unit,status from roughs as r left join rough_history as h  on r.id=h.rough_id
+  where r.rough_id=:rough_id
+  `,
 
   getPlanDetailOfRough: `
   with latest_plan as (
@@ -95,7 +114,7 @@ module.exports = {
       q += `,address=:address`;
     }
 
-    q += ` where id=:person_id`
+    q += ` where id=:person_id`;
     return q;
   },
 
@@ -105,6 +124,8 @@ module.exports = {
       :uuid,:rough_id,:status,:person_id,:start_date,:end_date,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
+
+  updateRoughHistory: `updatet rough_history set end_date=:end_date,updated_at=:updated_at where id=:history_id`,
   insertPlanResult: `insert into plan_result  (u_uuid, plan_name,rough_id,person_id,weight_unit,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (

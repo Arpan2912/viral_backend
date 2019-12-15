@@ -110,6 +110,38 @@ module.exports = {
           updated_at: new Date().toISOString(),
           created_by: 1,
           updated_by: 1
+        },
+        {
+          id: 7,
+          u_uuid: uuidv4(),
+          plan_name: "A",
+          rough_id: 2,
+          history_id: 8,
+          person_id: 2,
+          weight: "50",
+          unit: "cent",
+          is_active: true,
+          is_deleted: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: 1,
+          updated_by: 1
+        },
+        {
+          id: 8,
+          u_uuid: uuidv4(),
+          plan_name: "B",
+          rough_id: 2,
+          history_id: 8,
+          person_id: 2,
+          weight: "30",
+          unit: "cent",
+          is_active: true,
+          is_deleted: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: 1,
+          updated_by: 1
         }
       ],
       {}

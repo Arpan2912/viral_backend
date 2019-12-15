@@ -13,7 +13,7 @@ module.exports = class PersonService {
     } = req.body;
 
     const obj = {
-      u_uuid: uuidv4(),
+      uuid: uuidv4(),
       first_name: firstName,
       last_name: lastName,
       phone,
@@ -35,51 +35,52 @@ module.exports = class PersonService {
   }
 
   static async updatePerson(req, res) {
-    const {
-      firstName = null,
-      lastName = null,
-      phone = null,
-      email = null,
-      address = null,
-      designation = null,
-      personId: personUuid = null
-    } = req.body;
-
-    if (!personUuid) {
-      throw { code: 409, msg: "please select person" };
-    }
-
-    const personObj = { uuid: personUuid };
-    const personDetail = await DbService.getIdFromUuid(personObj);
-    const personId = personDetail[0][0].id;
-
-    const updateObj = {
-      updated_at: new Date().toISOString(),
-      person_id: personId
-    };
-
-    if (firstName) {
-      updateObj.first_name = firstName;
-    }
-    if (lastName) {
-      updateObj.last_name = lastName;
-    }
-    if (address) {
-      updateObj.address = address;
-    }
-    if (phone) {
-      updateObj.phone = phone;
-    }
-    if (email) {
-      updateObj.email = email;
-    }
-    if (designation) {
-      updateObj.designation = designation;
-    }
     try {
+      const {
+        firstName = null,
+        lastName = null,
+        phone = null,
+        email = null,
+        address = null,
+        designation = null,
+        personId: personUuid = null
+      } = req.body;
+
+      if (!personUuid) {
+        throw { code: 409, msg: "please select person" };
+      }
+
+      const personObj = { uuid: personUuid };
+      const personDetail = await DbService.getIdFromUuid(personObj, "person");
+      const personId = personDetail[0].id;
+
+      const updateObj = {
+        updated_at: new Date().toISOString(),
+        person_id: personId
+      };
+
+      if (firstName) {
+        updateObj.first_name = firstName;
+      }
+      if (lastName) {
+        updateObj.last_name = lastName;
+      }
+      if (address) {
+        updateObj.address = address;
+      }
+      if (phone) {
+        updateObj.phone = phone;
+      }
+      if (email) {
+        updateObj.email = email;
+      }
+      if (designation) {
+        updateObj.designation = designation;
+      }
       await DbService.updatePerson(updateObj);
       return Promise.resolve();
     } catch (e) {
+      console.error("e", e);
       return Promise.reject(e);
     }
   }

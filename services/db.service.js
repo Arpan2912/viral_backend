@@ -21,7 +21,10 @@ const {
   insertRoughHistory,
   qGetRoughCurrentStatus,
   updatePerson,
-  getPersons
+  getPersons,
+  getRoughDetail,
+  qGetRoughCurrentStatusByRoughId,
+  updateRoughHistory
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -73,8 +76,20 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(q, replacemenObj, "insert");
   }
 
+  static updateRoughHistory(replacemenObj) {
+    return DbService.executeSqlQuery(
+      updateRoughHistory,
+      replacemenObj,
+      "update"
+    );
+  }
+
   static updatePerson(replacemenObj) {
-    return DbService.executeSqlQuery(updatePerson, replacemenObj, "update");
+    return DbService.executeSqlQuery(
+      updatePerson(replacemenObj),
+      replacemenObj,
+      "update"
+    );
   }
 
   static getPersons(replacemenObj = {}) {
@@ -108,8 +123,20 @@ module.exports = class DbService {
     );
   }
 
+  static getRoughCurrentStatusByRoughId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      qGetRoughCurrentStatusByRoughId,
+      replacemenObj,
+      "select"
+    );
+  }
+
   static getRoughHistory(replacemenObj) {
     return DbService.executeSqlQuery(getRoughHistory, replacemenObj, "select");
+  }
+
+  static getRoughDetail(replacemenObj) {
+    return DbService.executeSqlQuery(getRoughDetail, replacemenObj, "select");
   }
 
   static getPlanDetailOfRough(replacemenObj) {

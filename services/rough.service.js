@@ -5,9 +5,10 @@ module.exports = class Rough {
   static async addRough(req, res) {
     const { roughs = [] } = req.body;
 
-    const { id } = req.user;
+    // const { id } = req.user;
+    const id = 1;
     try {
-      for (let i = 0; i < roughs.lengh; i += 1) {
+      for (let i = 0; i < roughs.length; i += 1) {
         const currentData = roughs[i];
         const obj = {
           u_uuid: uuidv4(),
@@ -23,39 +24,43 @@ module.exports = class Rough {
           created_by: id,
           updated_by: id
         };
-        await DbService.insertRecordToDb(obj, 'rough')
+        await DbService.insertRecordToDb(obj, "rough");
       }
       return Promise.resolve();
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
-
-
   }
 
   static async getRough(req, res) {
     try {
       const roughs = await DbService.getRoughCurrentStatus();
-      return Promise.resolve(roughs[0]);
+      return Promise.resolve(roughs);
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   }
 
   static async getRoughHistory(req, res) {
     try {
-      const { roughId: roughUuid = null } = req.query;
+      const { rough_id: roughUuid = null } = req.query;
       if (!roughUuid) {
         throw { code: 409, msg: "no data found" };
       }
-      const roughDetail = await DbService.getIdFromUuid(roughUuid, "rough");
-      const roughId = roughDetail[0][0].id;
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
       const replacementObj = {
         rough_id: roughId
-      }
-      let roughHistory = await DbService.getRoughHistory(replacementObj);
-      roughHistory = roughHistory[0];
-      for (let i = 0; i < roughHistory.lengh; i += 1) {
+      };
+      const roughHistory = await DbService.getRoughHistory(replacementObj);
+      console.log("roughHistory", roughHistory);
+      for (let i = 0; i < roughHistory.length; i += 1) {
         const currentData = roughHistory[i];
         const obj = {
           history_id: currentData.id,
@@ -66,8 +71,9 @@ module.exports = class Rough {
           currentData.start_date &&
           currentData.end_date
         ) {
-          let planData = await DbService.getPlanDetailOfRoughBasedOnHistoryId(obj);
-          planData = planData[0];
+          const planData = await DbService.getPlanDetailOfRoughBasedOnHistoryId(
+            obj
+          );
           currentData.detailData = planData;
         }
         if (
@@ -75,8 +81,9 @@ module.exports = class Rough {
           currentData.start_date &&
           currentData.end_date
         ) {
-          let lsData = await DbService.getLsDetailOfRoughBasedOnHistoryId(obj);
-          lsData = lsData[0];
+          const lsData = await DbService.getLsDetailOfRoughBasedOnHistoryId(
+            obj
+          );
           currentData.detailData = lsData;
         }
 
@@ -85,8 +92,9 @@ module.exports = class Rough {
           currentData.start_date &&
           currentData.end_date
         ) {
-          let blockData = await DbService.getBlockDetailOfRoughBasedOnHistoryId(obj);
-          blockData = blockData[0];
+          const blockData = await DbService.getBlockDetailOfRoughBasedOnHistoryId(
+            obj
+          );
           currentData.detailData = blockData;
         }
       }
@@ -96,20 +104,245 @@ module.exports = class Rough {
     }
   }
 
-  static async getRoughLatestData(req, res) {
+  static async getPlanDetailOfRough(req, res) {
     try {
-      const { roughId: roughUuid } = req.query;
+      const { rough_id: roughUuid } = req.query;
       if (!roughUuid) {
         throw { code: 409, msg: "no data found" };
       }
-      const roughDetail = await DbService.getIdFromUuid(roughUuid, "rough");
-      const roughId = roughDetail[0][0].id;
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
       const replacementObj = {
         rough_id: roughId
       };
-      const latestData = await DbService.get
+      const latestData = await DbService.getPlanDetailOfRough(replacementObj);
+      return Promise.resolve(latestData);
     } catch (e) {
-
+      return Promise.reject(e);
     }
   }
-}
+
+  static async getLsDetailOfRough(req, res) {
+    try {
+      const { rough_id: roughUuid } = req.query;
+      if (!roughUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
+      const replacementObj = {
+        rough_id: roughId
+      };
+      const latestData = await DbService.getLsDetailOfRough(replacementObj);
+      return Promise.resolve(latestData);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  static async getBlockDetailOfRough(req, res) {
+    try {
+      const { rough_id: roughUuid } = req.query;
+      if (!roughUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
+      const replacementObj = {
+        rough_id: roughId
+      };
+      const latestData = await DbService.getLsDetailOfRough(replacementObj);
+      return Promise.resolve(latestData);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  static async addRoughHistory(req, res) {
+    const { status, detailData, roughId: roughUuid } = req.body;
+    const statusMap = {
+      galaxy: "galaxy",
+      planning: "planning",
+      ls: "ls",
+      block: "block",
+      galaxy_end: "galaxy",
+      planning_end: "planning",
+      ls_end: "ls",
+      block_end: "block",
+      polish: "polish",
+      polish_end: "polish"
+    };
+
+    // fetchPreviousStatus
+    try {
+      // const { id } = req.query;
+      const id = 1;
+
+      if (!roughUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
+      const replacementObj = {
+        rough_id: roughId
+      };
+      const lastRoughData = await DbService.getRoughCurrentStatusByRoughId(
+        replacementObj
+      );
+      if (
+        (status === "galaxy_end" && lastRoughData.status === "galaxy") ||
+        (status === "ls_end" && lastRoughData.status === "ls") ||
+        (status === "planning_end" && lastRoughData.status === "planning") ||
+        (status === "block_end" && lastRoughData.status === "block") ||
+        (status === "polish_end" && lastRoughData.status === "polish") ||
+        (status === "hpht_end" && lastRoughData.status === "hpht")
+      ) {
+        const updateReplacement = {
+          end_date: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          history_id: lastRoughData.id
+        };
+        await DbService.updateRoughHistory(updateReplacement);
+      } else if (
+        (status === "galaxy_end" && lastRoughData.status !== "galaxy") ||
+        (status === "ls_end" && lastRoughData.status !== "ls") ||
+        (status === "planning_end" && lastRoughData.status !== "planning") ||
+        (status === "block_end" && lastRoughData.status !== "block") ||
+        (status === "polish_end" && lastRoughData.status !== "polish") ||
+        (status === "hpht_end" && lastRoughData.status !== "hpht")
+      ) {
+        const statusToAdd = statusMap[status];
+        const obj = {
+          rough_id: roughId,
+          uuid: uuidv4(),
+          status: statusToAdd,
+          person_id: 1,
+          start_date: new Date().toISOString(),
+          end_date: new Date().toISOString(),
+          is_active: true,
+          is_deleted: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: id,
+          updated_by: id
+        };
+        await DbService.insertRecordToDb(obj, "rough_history");
+      } else if (status !== lastRoughData.status) {
+        // add data to plan or ls or block table
+        const statusToAdd = statusMap[status];
+        const obj = {
+          rough_id: roughId,
+          uuid: uuidv4(),
+          status: statusToAdd,
+          person_id: 1,
+          start_date: new Date().toISOString(),
+          end_date: null,
+          is_active: true,
+          is_deleted: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: id,
+          updated_by: id
+        };
+        await DbService.insertRecordToDb(obj, "rough_history");
+      }
+
+      if (detailData) {
+        if (lastRoughData.status === "planning") {
+          for (let i = 0; i < detailData.length; i += 1) {
+            const currentData = detailData[i];
+            const obj = {
+              uuid: uuidv4(),
+              history_id: lastRoughData.id,
+              rough_id: lastRoughData.rough_id,
+              plan_name: currentData.planName,
+              person_id: 1,
+              weight: currentData.weight,
+              unit: currentData.unit,
+              is_deleted: false,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              created_by: id,
+              updated_by: id
+            };
+            await DbService.insertRecordToDb(obj, "plan_result");
+          }
+        } else if (lastRoughData.status === "ls") {
+          for (let i = 0; i < detailData.length; i += 1) {
+            const currentData = detailData[i];
+            const r = {
+              plan_id: currentData.planId
+            };
+            const planDetail = await DbService.getIdFromUuid(r, "plan_result");
+            const planId = planDetail[0].id;
+            const obj = {
+              uuid: uuidv4(),
+              history_id: lastRoughData.id,
+              rough_id: lastRoughData.rough_id,
+              plan_id: planId,
+              person_id: 1,
+              is_deleted: false,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              created_by: id,
+              updated_by: id
+            };
+            await DbService.insertRecordToDb(obj, "ls_result");
+          }
+        } else if (lastRoughData.status === "block") {
+          for (let i = 0; i < detailData.length; i += 1) {
+            const currentData = detailData[i];
+            const r = {
+              plan_id: currentData.planId
+            };
+            const planDetail = await DbService.getIdFromUuid(r, "plan_result");
+            const planId = planDetail[0].id;
+            const obj = {
+              uuid: uuidv4(),
+              history_id: lastRoughData.id,
+              rough_id: lastRoughData.rough_id,
+              plan_id: planId,
+              person_id: 1,
+              is_deleted: false,
+              is_active: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              created_by: id,
+              updated_by: id
+            };
+            await DbService.insertRecordToDb(obj, "block_result");
+          }
+        }
+      }
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+};

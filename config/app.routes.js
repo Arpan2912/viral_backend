@@ -3,7 +3,8 @@ const fs = require("fs");
 
 // Routes
 const indexRoutes = require("../routes/index");
-
+const personRoutes = require("../routes/person.route");
+const roughRoutes = require("../routes/rough.route");
 
 // public key for decrypt token path
 const publicKeyPath = `${__dirname}/../.auth/auth.private.key.pub`;
@@ -21,7 +22,7 @@ module.exports = class AppRoutes {
       ]
     });
 
-    app.all(["/*"], allowAccess);
+    // app.all(["/*"], allowAccess);
 
     // app.use(async (req, res, next) => {
     //   if (req.user) {
@@ -56,9 +57,10 @@ module.exports = class AppRoutes {
     // });
 
     app.use("/", indexRoutes);
-    // app.use("/user", userRoutes);
+    app.use("/person", personRoutes);
+    app.use("/rough", roughRoutes);
 
-    app.use(function(err, req, res) {
+    app.use(function (err, req, res) {
       if (err.name === "UnauthorizedError") {
         res.status(401).send("invalid token...");
       }
