@@ -210,10 +210,31 @@ module.exports = class Rough {
       const replacementObj = {
         rough_id: roughId
       };
-      const lastRoughData = await DbService.getRoughCurrentStatusByRoughId(
+      let lastRoughData = await DbService.getRoughCurrentStatusByRoughId(
         replacementObj
       );
-      if (
+      lastRoughData = lastRoughData[0];
+
+      console.error("lastRoughData", lastRoughData);
+
+      if (!lastRoughData.id) {
+        const statusToAdd = statusMap[status];
+        const obj = {
+          rough_id: roughId,
+          uuid: uuidv4(),
+          status: statusToAdd,
+          person_id: 1,
+          start_date: new Date().toISOString(),
+          end_date: new Date().toISOString(),
+          is_active: true,
+          is_deleted: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: id,
+          updated_by: id
+        };
+        await DbService.insertRecordToDb(obj, "rough_history");
+      } else if (
         (status === "galaxy_end" && lastRoughData.status === "galaxy") ||
         (status === "ls_end" && lastRoughData.status === "ls") ||
         (status === "planning_end" && lastRoughData.status === "planning") ||
@@ -253,6 +274,14 @@ module.exports = class Rough {
         await DbService.insertRecordToDb(obj, "rough_history");
       } else if (status !== lastRoughData.status) {
         // add data to plan or ls or block table
+        const updateReplacement = {
+          end_date: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          history_id: lastRoughData.id
+        };
+
+        await DbService.updateRoughHistory(updateReplacement);
+
         const statusToAdd = statusMap[status];
         const obj = {
           rough_id: roughId,
@@ -278,7 +307,7 @@ module.exports = class Rough {
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: lastRoughData.rough_id,
+              rough_id: roughId,
               plan_name: currentData.planName,
               person_id: 1,
               weight: currentData.weight,
@@ -296,14 +325,14 @@ module.exports = class Rough {
           for (let i = 0; i < detailData.length; i += 1) {
             const currentData = detailData[i];
             const r = {
-              plan_id: currentData.planId
+              uuid: currentData.planId
             };
             const planDetail = await DbService.getIdFromUuid(r, "plan_result");
             const planId = planDetail[0].id;
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: lastRoughData.rough_id,
+              rough_id: roughId,
               plan_id: planId,
               person_id: 1,
               is_deleted: false,
@@ -319,14 +348,14 @@ module.exports = class Rough {
           for (let i = 0; i < detailData.length; i += 1) {
             const currentData = detailData[i];
             const r = {
-              plan_id: currentData.planId
+              uuid: currentData.planId
             };
             const planDetail = await DbService.getIdFromUuid(r, "plan_result");
             const planId = planDetail[0].id;
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: lastRoughData.rough_id,
+              rough_id: roughId,
               plan_id: planId,
               person_id: 1,
               is_deleted: false,

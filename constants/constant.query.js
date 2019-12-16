@@ -25,7 +25,7 @@ module.exports = {
       group by rough_id
     ),
     all_data as (
-      select h.u_uuid as rough_id,lot_name,rough_name,price,status,start_date,end_date 
+      select h.u_uuid as rough_id,h.id ,lot_name,rough_name,price,status,start_date,end_date 
       from 
       rough_history as h 
       inner join last_status as l on l.max=h.id 
@@ -125,11 +125,11 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-  updateRoughHistory: `updatet rough_history set end_date=:end_date,updated_at=:updated_at where id=:history_id`,
-  insertPlanResult: `insert into plan_result  (u_uuid, plan_name,rough_id,person_id,weight_unit,
+  updateRoughHistory: `update  rough_history set end_date=:end_date,updated_at=:updated_at where id=:history_id`,
+  insertPlanResult: `insert into plan_result  (u_uuid, plan_name,rough_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
-      :uuid,:plan_name,:rough_id,:person_id,:weight_unit,
+      :uuid,:plan_name,:rough_id,:person_id,:weight,:unit,:history_id,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
   insertLsResult: `insert into ls_result (u_uuid,plan_id,rough_id,history_id,person_id,
@@ -138,7 +138,7 @@ module.exports = {
       :uuid,:plan_id,:rough_id,:history_id,:person_id,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
-  insertBlockResult: `insert into ls_result (u_uuid,plan_id,rough_id,history_id,person_id,
+  insertBlockResult: `insert into block_result (u_uuid,plan_id,rough_id,history_id,person_id,
       is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
       values(
         :uuid,:plan_id,:rough_id,:history_id,:person_id,
