@@ -11,7 +11,7 @@ module.exports = class Rough {
       for (let i = 0; i < roughs.length; i += 1) {
         const currentData = roughs[i];
         const obj = {
-          u_uuid: uuidv4(),
+          uuid: uuidv4(),
           lot_name: currentData.lotName,
           rough_name: currentData.roughName,
           price: currentData.price,
@@ -39,6 +39,11 @@ module.exports = class Rough {
     } catch (e) {
       return Promise.reject(e);
     }
+  }
+
+  static async getRoughList(req, res) {
+    const roughs = await DbService.getRoughList();
+    return Promise.resolve(roughs);
   }
 
   static async getRoughHistory(req, res) {

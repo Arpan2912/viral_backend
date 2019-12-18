@@ -24,7 +24,8 @@ const {
   getPersons,
   getRoughDetail,
   qGetRoughCurrentStatusByRoughId,
-  updateRoughHistory
+  updateRoughHistory,
+  getRoughList
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -94,6 +95,10 @@ module.exports = class DbService {
 
   static getPersons(replacemenObj = {}) {
     return DbService.executeSqlQuery(getPersons, replacemenObj, "select");
+  }
+
+  static getRoughList() {
+    return DbService.executeSqlQuery(getRoughList, null, "select");
   }
 
   static getIdFromUuid(replacemenObj, table) {

@@ -6,6 +6,7 @@ module.exports = {
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
   getPersons: `select first_name,last_name,address,designation,phone,email from persons`,
+  getRoughList: `select lot_name,rough_name,weight,price,unit from roughs`,
   qGetRoughCurrentStatus: `
   with last_status as (
     select max(id),rough_id from rough_history group by rough_id
@@ -48,7 +49,7 @@ module.exports = {
   with latest_plan as (
     select max(history_id) from plan_result where rough_id=1 group by rough_id
   )
-  select u_uuid,plan_name,weight,unit,history_id from plan_result as p where history_id in (select max from latest_plan)`,
+  select u_uuid as plan_id,plan_name,weight,unit,history_id from plan_result as p where history_id in (select max from latest_plan)`,
 
   getLsDetailOfRough: `
   with latest_plan as (

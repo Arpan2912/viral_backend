@@ -31,6 +31,19 @@ module.exports = class RoughController {
     }
   }
 
+  static async getRoughList(req, res) {
+    try {
+      const roughs = await RoughService.getRoughList(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get rough successfully",
+        roughs
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null)
+    }
+  }
+
   static async getRoughHistory(req, res) {
     try {
       const roughData = await RoughService.getRoughHistory(req, res);

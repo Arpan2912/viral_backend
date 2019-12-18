@@ -20,5 +20,9 @@ router
   .route(roughRoute.getLsDetailOfRough)
   .get(RoughController.getLsDetailOfRough);
 
+router
+  .route(roughRoute.getRoughList)
+  .get(RoughController.getRoughList);
+
 
 module.exports = router;

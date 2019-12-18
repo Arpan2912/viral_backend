@@ -12,6 +12,7 @@ module.exports = {
     getPlanDetailOfRough: "/get-plan-detail",
     getLsDetailOfRough: "/get-ls-detail",
     getBlockDetailOfRough: "/get-block-detail",
-    addRoughHistory: "/add-rough-history"
+    addRoughHistory: "/add-rough-history",
+    getRoughList:"/get-rough-list"
   }
 };
