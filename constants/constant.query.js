@@ -11,7 +11,8 @@ module.exports = {
     select max(id),rough_id from rough_history group by rough_id
   ),
   all_data as (
-    select r.u_uuid as rough_id,lot_name,rough_name,price,status,start_date,end_date 
+    select r.u_uuid as rough_id,lot_name,rough_name,weight,unit,price,status,start_date,end_date,
+    p.first_name,p.last_name
     from 
     rough_history as h 
     inner join last_status as l on l.max=h.id 
@@ -37,7 +38,7 @@ module.exports = {
   getRoughHistory: `select h.id,h.u_uuid,first_name,last_name,status,start_date,end_date 
     from rough_history as h 
     inner join persons p on h.person_id=p.id
-    where rough_id=1 order by h.id desc`,
+    where rough_id=:rough_id order by h.id desc`,
 
   getRoughDetail: `select r.id,r.u_uuid as rough_id,rough_name,weight,unit,status from roughs as r left join rough_history as h  on r.id=h.rough_id
   where r.rough_id=:rough_id
