@@ -5,6 +5,7 @@ const RoughController = require("../controllers/rough.controller");
 const router = express.Router();
 
 router.route(roughRoute.addRough).post(RoughController.addRough);
+router.route(roughRoute.updateRough).post(RoughController.updateRough);
 router.route(roughRoute.addRoughHistory).post(RoughController.addRoughHistory);
 router.route(roughRoute.getRough).get(RoughController.getRough);
 router.route(roughRoute.getRoughHistory).get(RoughController.getRoughHistory);

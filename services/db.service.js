@@ -21,6 +21,7 @@ const {
   insertRoughHistory,
   qGetRoughCurrentStatus,
   updatePerson,
+  updateRough,
   getPersons,
   getRoughDetail,
   qGetRoughCurrentStatusByRoughId,
@@ -118,6 +119,14 @@ module.exports = class DbService {
       return Promise.reject({ msg: "" });
     }
     return DbService.executeSqlQuery(q, replacemenObj, "select");
+  }
+
+  static updateRough(replacemenObj) {
+    return DbService.executeSqlQuery(
+      updateRough(replacemenObj),
+      replacemenObj,
+      "update"
+    );
   }
 
   static getRoughCurrentStatus(replacemenObj) {

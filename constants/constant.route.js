@@ -7,6 +7,7 @@ module.exports = {
   },
   rough: {
     addRough: "/add-rough",
+    updateRough: "/update-rough",
     getRough: "/get-rough",
     getRoughHistory: "/get-rough-history",
     getPlanDetailOfRough: "/get-plan-detail",

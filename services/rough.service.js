@@ -32,6 +32,40 @@ module.exports = class Rough {
     }
   }
 
+  static async updateRough(req, res) {
+    const {
+      lotName: lot_name,
+      roughName: rough_name,
+      price,
+      weight,
+      unit,
+      roughId: roughUuid
+    } = req.body;
+
+    if (!roughUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+    const getIdReplacement = {
+      uuid: roughUuid
+    };
+    const roughDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "rough"
+    );
+
+    let replacementObj = {
+      updated_at: new Date().toISOString(),
+      lot_name,
+      rough_name,
+      weight,
+      unit,
+      price,
+      rough_id: roughDetail[0].id  //add check if rough not exist
+    }
+    await DbService.updateRough(replacementObj);
+    return Promise.resolve(null);
+  }
+
   static async getRough(req, res) {
     try {
       const roughs = await DbService.getRoughCurrentStatus();
@@ -63,13 +97,14 @@ module.exports = class Rough {
       const replacementObj = {
         rough_id: roughId
       };
+      console.log(replacementObj);
       const roughHistory = await DbService.getRoughHistory(replacementObj);
       console.log("roughHistory", roughHistory);
       for (let i = 0; i < roughHistory.length; i += 1) {
         const currentData = roughHistory[i];
         const obj = {
           history_id: currentData.id,
-          rough_id: currentData.rough_id
+          rough_id: roughId
         };
         if (
           currentData.status === "planning" &&
@@ -182,7 +217,7 @@ module.exports = class Rough {
   }
 
   static async addRoughHistory(req, res) {
-    const { status, detailData, roughId: roughUuid } = req.body;
+    const { status, detailData, roughId: roughUuid, personId: personUuid } = req.body;
     const statusMap = {
       galaxy: "galaxy",
       planning: "planning",
@@ -193,7 +228,9 @@ module.exports = class Rough {
       ls_end: "ls",
       block_end: "block",
       polish: "polish",
-      polish_end: "polish"
+      polish_end: "polish",
+      hpht: "hpht",
+      hpht_end: "hpht",
     };
 
     // fetchPreviousStatus
@@ -204,6 +241,9 @@ module.exports = class Rough {
       if (!roughUuid) {
         throw { code: 409, msg: "no data found" };
       }
+      if (!personUuid) {
+        throw { code: 409, msg: "Please select person" };
+      }
       const getIdReplacement = {
         uuid: roughUuid
       };
@@ -212,6 +252,16 @@ module.exports = class Rough {
         "rough"
       );
       const roughId = roughDetail[0].id;
+      const getPersonIdReplacement = {
+        uuid: personUuid
+      };
+      const personDetail = await DbService.getIdFromUuid(
+        getPersonIdReplacement,
+        "person"
+      );
+
+      const personId = personDetail[0].id;
+
       const replacementObj = {
         rough_id: roughId
       };
@@ -228,7 +278,7 @@ module.exports = class Rough {
           rough_id: roughId,
           uuid: uuidv4(),
           status: statusToAdd,
-          person_id: 1,
+          person_id: personId,
           start_date: new Date().toISOString(),
           end_date: new Date().toISOString(),
           is_active: true,
@@ -266,7 +316,7 @@ module.exports = class Rough {
           rough_id: roughId,
           uuid: uuidv4(),
           status: statusToAdd,
-          person_id: 1,
+          person_id: personId,
           start_date: new Date().toISOString(),
           end_date: new Date().toISOString(),
           is_active: true,
@@ -292,7 +342,7 @@ module.exports = class Rough {
           rough_id: roughId,
           uuid: uuidv4(),
           status: statusToAdd,
-          person_id: 1,
+          person_id: personId,
           start_date: new Date().toISOString(),
           end_date: null,
           is_active: true,
@@ -314,7 +364,7 @@ module.exports = class Rough {
               history_id: lastRoughData.id,
               rough_id: roughId,
               plan_name: currentData.planName,
-              person_id: 1,
+              person_id: personId,
               weight: currentData.weight,
               unit: currentData.unit,
               is_deleted: false,
@@ -339,7 +389,7 @@ module.exports = class Rough {
               history_id: lastRoughData.id,
               rough_id: roughId,
               plan_id: planId,
-              person_id: 1,
+              person_id: personId,
               is_deleted: false,
               is_active: true,
               created_at: new Date().toISOString(),
@@ -362,7 +412,7 @@ module.exports = class Rough {
               history_id: lastRoughData.id,
               rough_id: roughId,
               plan_id: planId,
-              person_id: 1,
+              person_id: personId,
               is_deleted: false,
               is_active: true,
               created_at: new Date().toISOString(),

@@ -15,6 +15,20 @@ module.exports = class RoughController {
     }
   }
 
+  static async updateRough(req, res) {
+    try {
+      await RoughService.updateRough(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Rough updated successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+
   static async getRough(req, res) {
     try {
       const roughData = await RoughService.getRough(req, res);
