@@ -3,18 +3,44 @@ const DbService = require("../services/db.service");
 
 module.exports = class Rough {
   static async addRough(req, res) {
-    const { roughs = [] } = req.body;
+    const {
+      roughName,
+      weight,
+      unit,
+      price,
+      purchaseDate,
+      roughs = []
+    } = req.body;
 
     // const { id } = req.user;
     const id = 1;
     try {
+      const replacementObj = {
+        uuid: uuidv4(),
+        rough_name: roughName,
+        weight,
+        unit,
+        price,
+        purchase_date: purchaseDate,
+        is_active: true,
+        is_deleted: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: id,
+        updated_by: id
+      };
+      const insertRoughResult = await DbService.insertRecordToDb(
+        replacementObj,
+        "rough"
+      );
+      const roughId = insertRoughResult[0][0].id;
+
       for (let i = 0; i < roughs.length; i += 1) {
         const currentData = roughs[i];
         const obj = {
           uuid: uuidv4(),
+          rough_id: roughId,
           lot_name: currentData.lotName,
-          rough_name: currentData.roughName,
-          price: currentData.price,
           weight: currentData.weight,
           unit: currentData.unit,
           is_active: true,
@@ -24,7 +50,7 @@ module.exports = class Rough {
           created_by: id,
           updated_by: id
         };
-        await DbService.insertRecordToDb(obj, "rough");
+        await DbService.insertRecordToDb(obj, "lot_data");
       }
       return Promise.resolve();
     } catch (e) {
@@ -34,12 +60,12 @@ module.exports = class Rough {
 
   static async updateRough(req, res) {
     const {
-      lotName: lot_name,
-      roughName: rough_name,
+      roughName,
       price,
       weight,
       unit,
-      roughId: roughUuid
+      roughId: roughUuid,
+      purchaseDate
     } = req.body;
 
     if (!roughUuid) {
@@ -53,16 +79,41 @@ module.exports = class Rough {
       "rough"
     );
 
-    let replacementObj = {
+    const replacementObj = {
       updated_at: new Date().toISOString(),
-      lot_name,
-      rough_name,
+      rough_name: roughName,
       weight,
       unit,
       price,
-      rough_id: roughDetail[0].id  //add check if rough not exist
-    }
+      purchase_date: purchaseDate,
+      rough_id: roughDetail[0].id // add check if rough not exist
+    };
     await DbService.updateRough(replacementObj);
+    return Promise.resolve(null);
+  }
+
+  static async updateLotData(req, res) {
+    const { lotName, weight, unit, lotId: lotUuid } = req.body;
+
+    if (!lotUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+
+    const replacementObj = {
+      updated_at: new Date().toISOString(),
+      lot_name: lotName,
+      weight,
+      unit,
+      lot_id: lotDetail[0].id // add check if rough not exist
+    };
+    await DbService.updateLotData(replacementObj);
     return Promise.resolve(null);
   }
 
@@ -77,6 +128,23 @@ module.exports = class Rough {
 
   static async getRoughList(req, res) {
     const roughs = await DbService.getRoughList();
+    return Promise.resolve(roughs);
+  }
+
+  static async getLotList(req, res) {
+    const { rough_id: roughUuid = null } = req.query;
+    if (!roughUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+    const getIdReplacement = {
+      uuid: roughUuid
+    };
+    const roughDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "rough"
+    );
+    const roughId = roughDetail[0].id;
+    const roughs = await DbService.getLotList(roughId);
     return Promise.resolve(roughs);
   }
 
@@ -217,7 +285,12 @@ module.exports = class Rough {
   }
 
   static async addRoughHistory(req, res) {
-    const { status, detailData, roughId: roughUuid, personId: personUuid } = req.body;
+    const {
+      status,
+      detailData,
+      roughId: roughUuid,
+      personId: personUuid
+    } = req.body;
     const statusMap = {
       galaxy: "galaxy",
       planning: "planning",
@@ -230,7 +303,7 @@ module.exports = class Rough {
       polish: "polish",
       polish_end: "polish",
       hpht: "hpht",
-      hpht_end: "hpht",
+      hpht_end: "hpht"
     };
 
     // fetchPreviousStatus

@@ -28,13 +28,25 @@ module.exports = class RoughController {
     }
   }
 
+  static async updateLotData(req, res) {
+    try {
+      await RoughService.updateLotData(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Lot updated successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
 
   static async getRough(req, res) {
     try {
       const roughData = await RoughService.getRough(req, res);
       const obj = {
         roughs: roughData
-      }
+      };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get rough successfully",
         obj
@@ -54,7 +66,20 @@ module.exports = class RoughController {
       );
       return res.status(200).send(responseObj);
     } catch (e) {
-      CommonService.logErrorAndSendResponse(e, res, null)
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async getLotList(req, res) {
+    try {
+      const roughs = await RoughService.getLotList(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get lot successfully",
+        roughs
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
 
@@ -63,7 +88,7 @@ module.exports = class RoughController {
       const roughData = await RoughService.getRoughHistory(req, res);
       const obj = {
         roughs: roughData
-      }
+      };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get rough history successfully",
         obj
@@ -79,7 +104,7 @@ module.exports = class RoughController {
       const roughData = await RoughService.getPlanDetailOfRough(req, res);
       const obj = {
         roughs: roughData
-      }
+      };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get plan detail of rough",
         obj
@@ -95,7 +120,7 @@ module.exports = class RoughController {
       const roughData = await RoughService.getBlockDetailOfRough(req, res);
       const obj = {
         roughs: roughData
-      }
+      };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get block detail of rough",
         obj
@@ -111,7 +136,7 @@ module.exports = class RoughController {
       const roughData = await RoughService.getLsDetailOfRough(req, res);
       const obj = {
         roughs: roughData
-      }
+      };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get ls detail of rough",
         obj
@@ -134,4 +159,4 @@ module.exports = class RoughController {
       CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
-}
+};

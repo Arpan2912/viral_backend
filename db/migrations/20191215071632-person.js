@@ -31,6 +31,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      company: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       designation: {
         type: Sequelize.STRING,
         allowNull: true

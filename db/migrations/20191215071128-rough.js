@@ -11,10 +11,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
-      lot_name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       rough_name: {
         type: Sequelize.STRING,
         allowNull: false
@@ -30,6 +26,11 @@ module.exports = {
       unit: {
         type: Sequelize.STRING,
         allowNull: true
+      },
+      purchase_date: {
+        type: Sequelize.DATE,
+        // allowNull: false,
+        defaultValue: Sequelize.NOW
       },
       is_active: {
         type: Sequelize.BOOLEAN,

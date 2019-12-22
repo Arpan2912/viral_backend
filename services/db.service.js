@@ -13,20 +13,24 @@ const {
   getRoughHistory,
   getRoughHistoryIdFromUuid,
   getRoughIdFromUuid,
+  getLotIdFromUuid,
   insertBlockResult,
   insertLsResult,
   insertPerson,
   insertPlanResult,
   insertRough,
+  insertLotData,
   insertRoughHistory,
   qGetRoughCurrentStatus,
   updatePerson,
   updateRough,
+  updateLotData,
   getPersons,
   getRoughDetail,
   qGetRoughCurrentStatusByRoughId,
   updateRoughHistory,
-  getRoughList
+  getRoughList,
+  getLotList
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -69,6 +73,8 @@ module.exports = class DbService {
       q = insertLsResult;
     } else if (table === "block_result") {
       q = insertBlockResult;
+    } else if (table === "lot_data") {
+      q = insertLotData;
     } else {
       return Promise.reject({ msg: "" });
     }
@@ -102,6 +108,13 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(getRoughList, null, "select");
   }
 
+  static getLotList(roughId) {
+    const replacement = {
+      rough_id: roughId
+    };
+    return DbService.executeSqlQuery(getLotList, replacement, "select");
+  }
+
   static getIdFromUuid(replacemenObj, table) {
     let q = null;
     if (table === "person") {
@@ -112,6 +125,8 @@ module.exports = class DbService {
       q = getRoughHistoryIdFromUuid;
     } else if (table === "plan_result") {
       q = getPlanResultIdFromUuid;
+    } else if (table === "lot_data") {
+      q = getLotIdFromUuid;
     } else {
       return Promise.reject({ msg: "" });
     }
@@ -124,6 +139,14 @@ module.exports = class DbService {
   static updateRough(replacemenObj) {
     return DbService.executeSqlQuery(
       updateRough(replacemenObj),
+      replacemenObj,
+      "update"
+    );
+  }
+
+  static updateLotData(replacemenObj) {
+    return DbService.executeSqlQuery(
+      updateLotData(replacemenObj),
       replacemenObj,
       "update"
     );

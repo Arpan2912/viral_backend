@@ -9,6 +9,7 @@ module.exports = class PersonService {
       phone,
       email,
       address,
+      company = null,
       designation
     } = req.body;
 
@@ -20,6 +21,7 @@ module.exports = class PersonService {
       email,
       address,
       designation,
+      company,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       is_active: true,
@@ -43,6 +45,7 @@ module.exports = class PersonService {
         email = null,
         address = null,
         designation = null,
+        company = null,
         personId: personUuid = null
       } = req.body;
 
@@ -76,6 +79,9 @@ module.exports = class PersonService {
       }
       if (designation) {
         updateObj.designation = designation;
+      }
+      if (company) {
+        updateObj.company = company;
       }
       await DbService.updatePerson(updateObj);
       return Promise.resolve();
