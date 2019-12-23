@@ -11,11 +11,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
-      plan_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      rough_id: {
+      lot_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
@@ -25,6 +21,18 @@ module.exports = {
       },
       person_id: {
         type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      stone_name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      weight: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      unit: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       is_active: {

@@ -10,7 +10,7 @@ const {
   getPlanDetailOfRough,
   getPlanDetailOfRoughBasedOnHistoryId,
   getPlanResultIdFromUuid,
-  getRoughHistory,
+  getLotHistory,
   getRoughHistoryIdFromUuid,
   getRoughIdFromUuid,
   getLotIdFromUuid,
@@ -20,17 +20,18 @@ const {
   insertPlanResult,
   insertRough,
   insertLotData,
-  insertRoughHistory,
-  qGetRoughCurrentStatus,
+  insertLotHistory,
+  qGetLotCurrentStatus,
   updatePerson,
   updateRough,
   updateLotData,
   getPersons,
   getRoughDetail,
   qGetRoughCurrentStatusByRoughId,
-  updateRoughHistory,
+  updateLotHistory,
   getRoughList,
-  getLotList
+  getLotList,
+  getLatestLotStatus
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -65,8 +66,8 @@ module.exports = class DbService {
       q = insertPerson;
     } else if (table === "rough") {
       q = insertRough;
-    } else if (table === "rough_history") {
-      q = insertRoughHistory;
+    } else if (table === "lot_history") {
+      q = insertLotHistory;
     } else if (table === "plan_result") {
       q = insertPlanResult;
     } else if (table === "ls_result") {
@@ -84,12 +85,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(q, replacemenObj, "insert");
   }
 
-  static updateRoughHistory(replacemenObj) {
-    return DbService.executeSqlQuery(
-      updateRoughHistory,
-      replacemenObj,
-      "update"
-    );
+  static updateLotHistory(replacemenObj) {
+    return DbService.executeSqlQuery(updateLotHistory, replacemenObj, "update");
   }
 
   static updatePerson(replacemenObj) {
@@ -102,6 +99,14 @@ module.exports = class DbService {
 
   static getPersons(replacemenObj = {}) {
     return DbService.executeSqlQuery(getPersons, replacemenObj, "select");
+  }
+
+  static getLatestLotStatus(replacemenObj = {}) {
+    return DbService.executeSqlQuery(
+      getLatestLotStatus,
+      replacemenObj,
+      "select"
+    );
   }
 
   static getRoughList() {
@@ -152,9 +157,9 @@ module.exports = class DbService {
     );
   }
 
-  static getRoughCurrentStatus(replacemenObj) {
+  static getLotCurrentStatus(replacemenObj) {
     return DbService.executeSqlQuery(
-      qGetRoughCurrentStatus,
+      qGetLotCurrentStatus,
       replacemenObj,
       "select"
     );
@@ -168,8 +173,8 @@ module.exports = class DbService {
     );
   }
 
-  static getRoughHistory(replacemenObj) {
-    return DbService.executeSqlQuery(getRoughHistory, replacemenObj, "select");
+  static getLotHistory(replacemenObj) {
+    return DbService.executeSqlQuery(getLotHistory, replacemenObj, "select");
   }
 
   static getRoughDetail(replacemenObj) {

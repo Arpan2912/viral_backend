@@ -15,6 +15,19 @@ module.exports = class RoughController {
     }
   }
 
+  static async addLotData(req, res) {
+    try {
+      await RoughService.addLotData(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Lot data added successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
   static async updateRough(req, res) {
     try {
       await RoughService.updateRough(req, res);
@@ -83,14 +96,30 @@ module.exports = class RoughController {
     }
   }
 
-  static async getRoughHistory(req, res) {
+  static async getLotHistory(req, res) {
     try {
-      const roughData = await RoughService.getRoughHistory(req, res);
+      const roughData = await RoughService.getLotHistory(req, res);
       const obj = {
         roughs: roughData
       };
       const responseObj = CommonService.prepareSuccessResponse(
-        "Get rough history successfully",
+        "Get lot history successfully",
+        obj
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async getLotStoneList(req, res) {
+    try {
+      const roughData = await RoughService.getLotStoneList(req, res);
+      const obj = {
+        roughs: roughData
+      };
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get lot stone list successfully",
         obj
       );
       return res.status(200).send(responseObj);

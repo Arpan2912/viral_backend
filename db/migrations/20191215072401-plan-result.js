@@ -11,11 +11,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
-      plan_name: {
+      stone_name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      rough_id: {
+      lot_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },

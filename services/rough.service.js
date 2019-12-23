@@ -58,6 +58,42 @@ module.exports = class Rough {
     }
   }
 
+  static async addLotData(req, res) {
+    const { lotName, weight, unit, roughId: roughUuid } = req.body;
+    try {
+      if (!roughUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      const getIdReplacement = {
+        uuid: roughUuid
+      };
+      const roughDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "rough"
+      );
+      const roughId = roughDetail[0].id;
+      const id = 1;
+      const obj = {
+        uuid: uuidv4(),
+        rough_id: roughId,
+        lot_name: lotName,
+        weight,
+        unit,
+        is_active: true,
+        is_deleted: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: id,
+        updated_by: id
+      };
+
+      await DbService.insertRecordToDb(obj, "lot_data");
+      return Promise.resolve(null);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   static async updateRough(req, res) {
     const {
       roughName,
@@ -119,7 +155,7 @@ module.exports = class Rough {
 
   static async getRough(req, res) {
     try {
-      const roughs = await DbService.getRoughCurrentStatus();
+      const roughs = await DbService.getLotCurrentStatus();
       return Promise.resolve(roughs);
     } catch (e) {
       return Promise.reject(e);
@@ -148,31 +184,78 @@ module.exports = class Rough {
     return Promise.resolve(roughs);
   }
 
-  static async getRoughHistory(req, res) {
+  static async getLotStoneList(req, res) {
+    const { lot_id: lotUuid = null } = req.query;
+    if (!lotUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+    const lotId = lotDetail[0].id;
+    const replacementObj = {
+      lot_id: lotId
+    };
+    const lotProcessStatuses = await DbService.getLatestLotStatus(
+      replacementObj
+    );
+    let detailData = [];
+    // lotProcessStatuses = lotProcessStatuses[0];
+    console.log(
+      "lotProcessStatuses",
+      lotProcessStatuses,
+      lotProcessStatuses.length
+    );
+    for (let i = 0; i < lotProcessStatuses.length; i += 1) {
+      const currentData = lotProcessStatuses[i];
+      if (currentData.status === "planning" && currentData.end_date !== null) {
+        detailData = await DbService.getPlanDetailOfRough(replacementObj);
+        // detailData = detailData;
+        break;
+      }
+      if (currentData.status === "ls" && currentData.end_date !== null) {
+        detailData = await DbService.getLsDetailOfRough(replacementObj);
+        // detailData = detailData;
+        break;
+      }
+      if (currentData.status === "block" && currentData.end_date !== null) {
+        detailData = await DbService.getBlockDetailOfRough(replacementObj);
+        // detailData = detailData[0];
+        break;
+      }
+    }
+    return Promise.resolve(detailData);
+  }
+
+  static async getLotHistory(req, res) {
     try {
-      const { rough_id: roughUuid = null } = req.query;
-      if (!roughUuid) {
+      const { lot_id: lotUuid = null } = req.query;
+      if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
       const getIdReplacement = {
-        uuid: roughUuid
+        uuid: lotUuid
       };
-      const roughDetail = await DbService.getIdFromUuid(
+      const lotDetail = await DbService.getIdFromUuid(
         getIdReplacement,
-        "rough"
+        "lot_data"
       );
-      const roughId = roughDetail[0].id;
+      const lotId = lotDetail[0].id;
       const replacementObj = {
-        rough_id: roughId
+        lot_id: lotId
       };
       console.log(replacementObj);
-      const roughHistory = await DbService.getRoughHistory(replacementObj);
-      console.log("roughHistory", roughHistory);
-      for (let i = 0; i < roughHistory.length; i += 1) {
-        const currentData = roughHistory[i];
+      const lotHistory = await DbService.getLotHistory(replacementObj);
+      console.log("lotHistory", lotHistory);
+      for (let i = 0; i < lotHistory.length; i += 1) {
+        const currentData = lotHistory[i];
         const obj = {
           history_id: currentData.id,
-          rough_id: roughId
+          lot_id: lotId
         };
         if (
           currentData.status === "planning" &&
@@ -206,7 +289,7 @@ module.exports = class Rough {
           currentData.detailData = blockData;
         }
       }
-      return Promise.resolve(roughHistory);
+      return Promise.resolve(lotHistory);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -214,20 +297,20 @@ module.exports = class Rough {
 
   static async getPlanDetailOfRough(req, res) {
     try {
-      const { rough_id: roughUuid } = req.query;
-      if (!roughUuid) {
+      const { lot_id: lotUuid } = req.query;
+      if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
       const getIdReplacement = {
-        uuid: roughUuid
+        uuid: lotUuid
       };
-      const roughDetail = await DbService.getIdFromUuid(
+      const lotDetail = await DbService.getIdFromUuid(
         getIdReplacement,
-        "rough"
+        "lot_data"
       );
-      const roughId = roughDetail[0].id;
+      const lotId = lotDetail[0].id;
       const replacementObj = {
-        rough_id: roughId
+        lot_id: lotId
       };
       const latestData = await DbService.getPlanDetailOfRough(replacementObj);
       return Promise.resolve(latestData);
@@ -238,20 +321,20 @@ module.exports = class Rough {
 
   static async getLsDetailOfRough(req, res) {
     try {
-      const { rough_id: roughUuid } = req.query;
-      if (!roughUuid) {
+      const { lot_id: lotUuid } = req.query;
+      if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
       const getIdReplacement = {
-        uuid: roughUuid
+        uuid: lotUuid
       };
-      const roughDetail = await DbService.getIdFromUuid(
+      const lotDetail = await DbService.getIdFromUuid(
         getIdReplacement,
-        "rough"
+        "lot_data"
       );
-      const roughId = roughDetail[0].id;
+      const lotId = lotDetail[0].id;
       const replacementObj = {
-        rough_id: roughId
+        lot_id: lotId
       };
       const latestData = await DbService.getLsDetailOfRough(replacementObj);
       return Promise.resolve(latestData);
@@ -262,20 +345,20 @@ module.exports = class Rough {
 
   static async getBlockDetailOfRough(req, res) {
     try {
-      const { rough_id: roughUuid } = req.query;
-      if (!roughUuid) {
+      const { lot_id: lotUuid } = req.query;
+      if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
       const getIdReplacement = {
-        uuid: roughUuid
+        uuid: lotUuid
       };
-      const roughDetail = await DbService.getIdFromUuid(
+      const lotDetail = await DbService.getIdFromUuid(
         getIdReplacement,
-        "rough"
+        "lot_data"
       );
-      const roughId = roughDetail[0].id;
+      const lotId = lotDetail[0].id;
       const replacementObj = {
-        rough_id: roughId
+        lot_id: lotId
       };
       const latestData = await DbService.getLsDetailOfRough(replacementObj);
       return Promise.resolve(latestData);
@@ -288,7 +371,7 @@ module.exports = class Rough {
     const {
       status,
       detailData,
-      roughId: roughUuid,
+      lotId: lotUuid,
       personId: personUuid
     } = req.body;
     const statusMap = {
@@ -311,20 +394,20 @@ module.exports = class Rough {
       // const { id } = req.query;
       const id = 1;
 
-      if (!roughUuid) {
+      if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
       if (!personUuid) {
         throw { code: 409, msg: "Please select person" };
       }
       const getIdReplacement = {
-        uuid: roughUuid
+        uuid: lotUuid
       };
-      const roughDetail = await DbService.getIdFromUuid(
+      const lotDetail = await DbService.getIdFromUuid(
         getIdReplacement,
-        "rough"
+        "lot_data"
       );
-      const roughId = roughDetail[0].id;
+      const lotId = lotDetail[0].id;
       const getPersonIdReplacement = {
         uuid: personUuid
       };
@@ -336,7 +419,7 @@ module.exports = class Rough {
       const personId = personDetail[0].id;
 
       const replacementObj = {
-        rough_id: roughId
+        lot_id: lotId
       };
       let lastRoughData = await DbService.getRoughCurrentStatusByRoughId(
         replacementObj
@@ -348,7 +431,7 @@ module.exports = class Rough {
       if (!lastRoughData.id) {
         const statusToAdd = statusMap[status];
         const obj = {
-          rough_id: roughId,
+          lot_id: lotId,
           uuid: uuidv4(),
           status: statusToAdd,
           person_id: personId,
@@ -361,7 +444,7 @@ module.exports = class Rough {
           created_by: id,
           updated_by: id
         };
-        await DbService.insertRecordToDb(obj, "rough_history");
+        await DbService.insertRecordToDb(obj, "lot_history");
       } else if (
         (status === "galaxy_end" && lastRoughData.status === "galaxy") ||
         (status === "ls_end" && lastRoughData.status === "ls") ||
@@ -375,7 +458,7 @@ module.exports = class Rough {
           updated_at: new Date().toISOString(),
           history_id: lastRoughData.id
         };
-        await DbService.updateRoughHistory(updateReplacement);
+        await DbService.updateLotHistory(updateReplacement);
       } else if (
         (status === "galaxy_end" && lastRoughData.status !== "galaxy") ||
         (status === "ls_end" && lastRoughData.status !== "ls") ||
@@ -386,7 +469,7 @@ module.exports = class Rough {
       ) {
         const statusToAdd = statusMap[status];
         const obj = {
-          rough_id: roughId,
+          lot_id: lotId,
           uuid: uuidv4(),
           status: statusToAdd,
           person_id: personId,
@@ -399,7 +482,7 @@ module.exports = class Rough {
           created_by: id,
           updated_by: id
         };
-        await DbService.insertRecordToDb(obj, "rough_history");
+        await DbService.insertRecordToDb(obj, "lot_history");
       } else if (status !== lastRoughData.status) {
         // add data to plan or ls or block table
         const updateReplacement = {
@@ -408,11 +491,11 @@ module.exports = class Rough {
           history_id: lastRoughData.id
         };
 
-        await DbService.updateRoughHistory(updateReplacement);
+        await DbService.updateLotHistory(updateReplacement);
 
         const statusToAdd = statusMap[status];
         const obj = {
-          rough_id: roughId,
+          lot_id: lotId,
           uuid: uuidv4(),
           status: statusToAdd,
           person_id: personId,
@@ -425,7 +508,7 @@ module.exports = class Rough {
           created_by: id,
           updated_by: id
         };
-        await DbService.insertRecordToDb(obj, "rough_history");
+        await DbService.insertRecordToDb(obj, "lot_history");
       }
 
       if (detailData) {
@@ -435,8 +518,8 @@ module.exports = class Rough {
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: roughId,
-              plan_name: currentData.planName,
+              lot_id: lotId,
+              stone_name: currentData.stoneName,
               person_id: personId,
               weight: currentData.weight,
               unit: currentData.unit,
@@ -452,17 +535,19 @@ module.exports = class Rough {
         } else if (lastRoughData.status === "ls") {
           for (let i = 0; i < detailData.length; i += 1) {
             const currentData = detailData[i];
-            const r = {
-              uuid: currentData.planId
-            };
-            const planDetail = await DbService.getIdFromUuid(r, "plan_result");
-            const planId = planDetail[0].id;
+            // const r = {
+            //   uuid: currentData.planId
+            // };
+            // const planDetail = await DbService.getIdFromUuid(r, "plan_result");
+            // const planId = planDetail[0].id;
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: roughId,
-              plan_id: planId,
+              lot_id: lotId,
               person_id: personId,
+              stone_name: currentData.stoneName,
+              weight: currentData.weight,
+              unit: currentData.unit,
               is_deleted: false,
               is_active: true,
               created_at: new Date().toISOString(),
@@ -475,17 +560,20 @@ module.exports = class Rough {
         } else if (lastRoughData.status === "block") {
           for (let i = 0; i < detailData.length; i += 1) {
             const currentData = detailData[i];
-            const r = {
-              uuid: currentData.planId
-            };
-            const planDetail = await DbService.getIdFromUuid(r, "plan_result");
-            const planId = planDetail[0].id;
+            // const r = {
+            //   uuid: currentData.planId
+            // };
+            // const planDetail = await DbService.getIdFromUuid(r, "plan_result");
+            // const planId = planDetail[0].id;
             const obj = {
               uuid: uuidv4(),
               history_id: lastRoughData.id,
-              rough_id: roughId,
-              plan_id: planId,
+              lot_id: lotId,
+              // plan_id: planId,
               person_id: personId,
+              stone_name: currentData.stoneName,
+              weight: currentData.weight,
+              unit: currentData.unit,
               is_deleted: false,
               is_active: true,
               created_at: new Date().toISOString(),

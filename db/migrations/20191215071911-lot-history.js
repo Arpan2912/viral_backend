@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("rough_history", {
+    return queryInterface.createTable("lot_history", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,7 +11,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
-      rough_id: {
+      lot_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
@@ -78,7 +78,7 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("rough_history");
+    return queryInterface.dropTable("lot_history");
 
     /*
       Add reverting commands here.
