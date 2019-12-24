@@ -31,7 +31,9 @@ const {
   updateLotHistory,
   getRoughList,
   getLotList,
-  getLatestLotStatus
+  getLatestLotStatus,
+  createUser,
+  getUserDetail
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -76,6 +78,8 @@ module.exports = class DbService {
       q = insertBlockResult;
     } else if (table === "lot_data") {
       q = insertLotData;
+    } else if (table === "user") {
+      q = createUser;
     } else {
       return Promise.reject({ msg: "" });
     }
@@ -83,6 +87,10 @@ module.exports = class DbService {
       return Promise.reject({ msg: "" });
     }
     return DbService.executeSqlQuery(q, replacemenObj, "insert");
+  }
+
+  static getUserDetail(replacemenObj) {
+    return DbService.executeSqlQuery(getUserDetail, replacemenObj, "select");
   }
 
   static updateLotHistory(replacemenObj) {

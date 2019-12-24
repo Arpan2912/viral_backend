@@ -38,7 +38,7 @@ module.exports = {
       is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: true
       },
       is_deleted: {
         type: Sequelize.BOOLEAN,

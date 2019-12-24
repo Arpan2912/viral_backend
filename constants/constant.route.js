@@ -1,5 +1,8 @@
 module.exports = {
-  auth: {},
+  auth: {
+    signup: "/signup",
+    signin: "/signin"
+  },
   person: {
     addPerson: "/add-person",
     updatePerson: "/update-person",

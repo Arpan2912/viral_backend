@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const AppLogger = require("../config/app.logger");
 const { common } = require("../constants/constant.message");
 
@@ -32,5 +33,13 @@ module.exports = class CommonService {
     }
     const errorObj = CommonService.prepareErrorResponse(msg, data);
     return res.status(code).send(errorObj);
+  }
+
+  static generateSha512Hash(password) {
+    // password is added to remove unused error
+    return crypto
+      .createHash("sha512")
+      .update(password)
+      .digest("hex");
   }
 };

@@ -1,6 +1,11 @@
 // put all queries here
 module.exports = {
   // qGetUserDetail: `select * from "users" where email=:email`,
+  createUser: `insert into  users (u_uuid,first_name,last_name,email,
+    phone,password,user_type,created_at,updated_at)
+  values (:uuid,:first_name,:last_name,:email,
+    :phone,:password,:user_type,:created_at,:updated_at)`,
+  getUserDetail: `select * from users where phone=:phone`,
   getRoughIdFromUuid: `select id from roughs where u_uuid=:uuid`,
   getLotIdFromUuid: `select id from lot_data where u_uuid=:uuid`,
   getRoughHistoryIdFromUuid: `select id from lot_history where u_uuid=:uuid`,
