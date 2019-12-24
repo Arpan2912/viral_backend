@@ -82,13 +82,12 @@ module.exports = {
   where  lot_id=:lot_id and history_id=:history_id`,
 
   getLsDetailOfRoughBasedOnHistoryId: `
-  select p.u_uuid,p.stone_name,p.weight,p.unit,l.history_id from ls_result as l 
-  inner join plan_result as p on p.id=l.plan_id
-  where l.lot_id=:lot_id and l.history_id=:history_id`,
+  select u_uuid,stone_name,weight,unit,history_id from ls_result 
+  where lot_id=:lot_id and history_id=:history_id`,
 
   getBlockDetailOfRoughBasedOnHistoryId: `
-  select p.u_uuid,p.stone_name,p.weight,p.unit,b.history_id from block_result as b
-  where b.lot_id=:lot_id and b.history_id=:history_id`,
+  select u_uuid,stone_name,weight,unit,history_id from block_result
+  where lot_id=:lot_id and history_id=:history_id`,
 
   insertRough: `insert into roughs (u_uuid,rough_name,price,weight,unit,purchase_date,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
