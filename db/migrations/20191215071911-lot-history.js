@@ -25,7 +25,7 @@ module.exports = {
       },
       labour_history_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       labour_rate: {
         type: Sequelize.STRING,

@@ -372,8 +372,12 @@ module.exports = class Rough {
       status,
       detailData,
       lotId: lotUuid,
-      personId: personUuid
+      personId: personUuid,
+      labourRate = null,
+      totalLabour = null,
+      labourHistoryId: labourHistoryUuid = null
     } = req.body;
+
     const statusMap = {
       galaxy: "galaxy",
       planning: "planning",
@@ -391,14 +395,14 @@ module.exports = class Rough {
       gia_end: "gia",
       iga: "iga",
       iga_end: "iga",
-      sale: "sale",
+      sale: "sale"
     };
 
     // fetchPreviousStatus
     try {
       // const { id } = req.query;
       const id = 1;
-
+      let labourHistoryId = null;
       if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
@@ -422,6 +426,17 @@ module.exports = class Rough {
       );
 
       const personId = personDetail[0].id;
+
+      if (labourHistoryUuid) {
+        const getHistoryIdReplacement = {
+          uuid: labourHistoryUuid
+        };
+        const lotHistory = await DbService.getIdFromUuid(
+          getHistoryIdReplacement,
+          "rough_history"
+        );
+        labourHistoryId = lotHistory[0].id;
+      }
 
       const replacementObj = {
         lot_id: lotId
@@ -461,6 +476,9 @@ module.exports = class Rough {
         (status === "iga_end" && lastRoughData.status === "iga")
       ) {
         const updateReplacement = {
+          labour_rate: labourRate,
+          total_labour: totalLabour,
+          labour_history_id: labourHistoryId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           history_id: lastRoughData.id
@@ -495,6 +513,9 @@ module.exports = class Rough {
       } else if (status !== lastRoughData.status) {
         // add data to plan or ls or block table
         const updateReplacement = {
+          labour_rate: labourRate,
+          total_labour: totalLabour,
+          labour_history_id: labourHistoryId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           history_id: lastRoughData.id
@@ -509,7 +530,7 @@ module.exports = class Rough {
           status: statusToAdd,
           person_id: personId,
           start_date: new Date().toISOString(),
-          end_date: statusToAdd === 'sale' ? new Date().toISOString() : null,
+          end_date: statusToAdd === "sale" ? new Date().toISOString() : null,
           is_active: true,
           is_deleted: true,
           created_at: new Date().toISOString(),

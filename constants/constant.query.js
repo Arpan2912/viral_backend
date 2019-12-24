@@ -191,7 +191,9 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at where id=:history_id`,
+  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,labour_rate=:labour_rate,
+  total_labour=:total_labour,labour_history_id=:labour_history_id
+  where id=:history_id`,
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
