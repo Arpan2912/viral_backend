@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      labour_history_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       labour_rate: {
         type: Sequelize.STRING,
         allowNull: true

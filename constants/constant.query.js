@@ -60,21 +60,24 @@ module.exports = {
   with latest_plan as (
     select max(history_id) from plan_result where lot_id=:lot_id group by lot_id
   )
-  select u_uuid as plan_id,stone_name,weight,unit,history_id from plan_result as p 
+  select p.u_uuid as plan_id,p.stone_name,p.weight,p.unit,p.history_id,h.u_uuid as history_uuid from plan_result as p
+  inner join lot_history as h on h.id=p.history_id 
   where history_id in (select max from latest_plan)`,
 
   getLsDetailOfRough: `
   with latest_plan as (
     select max(history_id) from ls_result where lot_id=:lot_id group by lot_id
   )
-  select l.u_uuid,stone_name,weight,unit,l.history_id from ls_result as l 
+  select l.u_uuid,l.stone_name,l.weight,l.unit,l.history_id,h.u_uuid as history_uuid from ls_result as l 
+  inner join lot_history as h on h.id=l.history_id 
   where l.history_id in (select max from latest_plan)`,
 
   getBlockDetailOfRough: `
   with latest_plan as (
     select max(history_id) from block_result where lot_id=:lot_id group by lot_id
   )
-  select b.u_uuid,stone_name,weight,unit,b.history_id from block_result as b
+  select b.u_uuid,b.stone_name,b.weight,b.unit,b.history_id,h.u_uuid as history_uuid from block_result as b
+  inner join lot_history as h on h.id=b.history_id 
   where b.history_id in (select max from latest_plan)`,
 
   getPlanDetailOfRoughBasedOnHistoryId: `

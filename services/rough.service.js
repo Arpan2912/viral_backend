@@ -386,7 +386,12 @@ module.exports = class Rough {
       polish: "polish",
       polish_end: "polish",
       hpht: "hpht",
-      hpht_end: "hpht"
+      hpht_end: "hpht",
+      gia: "gia",
+      gia_end: "gia",
+      iga: "iga",
+      iga_end: "iga",
+      sale: "sale",
     };
 
     // fetchPreviousStatus
@@ -436,7 +441,7 @@ module.exports = class Rough {
           status: statusToAdd,
           person_id: personId,
           start_date: new Date().toISOString(),
-          end_date: new Date().toISOString(),
+          end_date: null,
           is_active: true,
           is_deleted: true,
           created_at: new Date().toISOString(),
@@ -451,7 +456,9 @@ module.exports = class Rough {
         (status === "planning_end" && lastRoughData.status === "planning") ||
         (status === "block_end" && lastRoughData.status === "block") ||
         (status === "polish_end" && lastRoughData.status === "polish") ||
-        (status === "hpht_end" && lastRoughData.status === "hpht")
+        (status === "hpht_end" && lastRoughData.status === "hpht") ||
+        (status === "gia_end" && lastRoughData.status === "gia") ||
+        (status === "iga_end" && lastRoughData.status === "iga")
       ) {
         const updateReplacement = {
           end_date: new Date().toISOString(),
@@ -465,7 +472,9 @@ module.exports = class Rough {
         (status === "planning_end" && lastRoughData.status !== "planning") ||
         (status === "block_end" && lastRoughData.status !== "block") ||
         (status === "polish_end" && lastRoughData.status !== "polish") ||
-        (status === "hpht_end" && lastRoughData.status !== "hpht")
+        (status === "hpht_end" && lastRoughData.status !== "hpht") ||
+        (status === "gia_end" && lastRoughData.status !== "gia") ||
+        (status === "iga_end" && lastRoughData.status !== "iga")
       ) {
         const statusToAdd = statusMap[status];
         const obj = {
@@ -500,7 +509,7 @@ module.exports = class Rough {
           status: statusToAdd,
           person_id: personId,
           start_date: new Date().toISOString(),
-          end_date: null,
+          end_date: statusToAdd === 'sale' ? new Date().toISOString() : null,
           is_active: true,
           is_deleted: true,
           created_at: new Date().toISOString(),
