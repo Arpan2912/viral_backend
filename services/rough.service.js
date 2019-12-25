@@ -12,8 +12,7 @@ module.exports = class Rough {
       roughs = []
     } = req.body;
 
-    // const { id } = req.user;
-    const id = 1;
+    const { id } = req.userDetail;
     try {
       const replacementObj = {
         uuid: uuidv4(),
@@ -60,6 +59,8 @@ module.exports = class Rough {
 
   static async addLotData(req, res) {
     const { lotName, weight, unit, roughId: roughUuid } = req.body;
+    const { id } = req.userDetail;
+
     try {
       if (!roughUuid) {
         throw { code: 409, msg: "no data found" };
@@ -72,7 +73,6 @@ module.exports = class Rough {
         "rough"
       );
       const roughId = roughDetail[0].id;
-      const id = 1;
       const obj = {
         uuid: uuidv4(),
         rough_id: roughId,
@@ -103,6 +103,7 @@ module.exports = class Rough {
       roughId: roughUuid,
       purchaseDate
     } = req.body;
+    const { id } = req.userDetail;
 
     if (!roughUuid) {
       throw { code: 409, msg: "no data found" };
@@ -117,6 +118,7 @@ module.exports = class Rough {
 
     const replacementObj = {
       updated_at: new Date().toISOString(),
+      updated_by: id,
       rough_name: roughName,
       weight,
       unit,
@@ -130,6 +132,7 @@ module.exports = class Rough {
 
   static async updateLotData(req, res) {
     const { lotName, weight, unit, lotId: lotUuid } = req.body;
+    const { id } = req.userDetail;
 
     if (!lotUuid) {
       throw { code: 409, msg: "no data found" };
@@ -144,6 +147,7 @@ module.exports = class Rough {
 
     const replacementObj = {
       updated_at: new Date().toISOString(),
+      updated_by: id,
       lot_name: lotName,
       weight,
       unit,
@@ -377,6 +381,7 @@ module.exports = class Rough {
       totalLabour = null,
       labourHistoryId: labourHistoryUuid = null
     } = req.body;
+    const { id } = req.userDetail;
 
     const statusMap = {
       galaxy: "galaxy",
@@ -401,7 +406,6 @@ module.exports = class Rough {
     // fetchPreviousStatus
     try {
       // const { id } = req.query;
-      const id = 1;
       let labourHistoryId = null;
       if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
@@ -481,6 +485,7 @@ module.exports = class Rough {
           labour_history_id: labourHistoryId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          updated_by: id,
           history_id: lastRoughData.id
         };
         await DbService.updateLotHistory(updateReplacement);
@@ -518,6 +523,7 @@ module.exports = class Rough {
           labour_history_id: labourHistoryId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          updated_by: id,
           history_id: lastRoughData.id
         };
 

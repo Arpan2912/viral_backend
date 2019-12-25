@@ -114,7 +114,7 @@ module.exports = {
       `,
 
   updateRough: replacement => {
-    let q = `update roughs set updated_at=:updated_at`;
+    let q = `update roughs set updated_at=:updated_at,updated_by=:updated_by`;
 
     if (replacement.rough_name) {
       q += `,rough_name=:rough_name`;
@@ -137,7 +137,7 @@ module.exports = {
   },
 
   updateLotData: replacement => {
-    let q = `update lot_data set updated_at=:updated_at`;
+    let q = `update lot_data set updated_at=:updated_at,updated_by=:updated_by`;
     if (replacement.rough_id) {
       q += `,rough_id=:rough_id`;
     }
@@ -155,14 +155,14 @@ module.exports = {
   },
 
   insertPerson: `insert into persons (u_uuid,first_name,last_name,email,phone,address,designation,
-    company,is_active,is_deleted,created_at,updated_at) 
+    company,is_active,is_deleted,created_at,updated_at,created_by,updated_by) 
     values (
       :uuid,:first_name,:last_name,:email,:phone,:address,:designation,
-      :company,:is_active,:is_deleted,:created_at,:updated_at
+      :company,:is_active,:is_deleted,:created_at,:updated_at,:created_by,:updated_by
     )`,
 
   updatePerson: replacement => {
-    let q = `update persons set updated_at=:updated_at`;
+    let q = `update persons set updated_at=:updated_at,updated_by=:updated_by`;
     if (replacement.first_name) {
       q += `,first_name=:first_name`;
     }
@@ -196,7 +196,7 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,labour_rate=:labour_rate,
+  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,labour_rate=:labour_rate,
   total_labour=:total_labour,labour_history_id=:labour_history_id
   where id=:history_id`,
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,

@@ -12,6 +12,7 @@ module.exports = class PersonService {
       company = null,
       designation
     } = req.body;
+    const { id } = req.userDetail;
 
     const obj = {
       uuid: uuidv4(),
@@ -24,6 +25,8 @@ module.exports = class PersonService {
       company,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      created_by: id,
+      updated_by: id,
       is_active: true,
       is_deleted: false
     };
@@ -48,6 +51,7 @@ module.exports = class PersonService {
         company = null,
         personId: personUuid = null
       } = req.body;
+      const { id } = req.userDetail;
 
       if (!personUuid) {
         throw { code: 409, msg: "please select person" };
@@ -59,6 +63,7 @@ module.exports = class PersonService {
 
       const updateObj = {
         updated_at: new Date().toISOString(),
+        updated_by: id,
         person_id: personId
       };
 
