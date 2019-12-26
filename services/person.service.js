@@ -98,27 +98,31 @@ module.exports = class PersonService {
 
   static async getPersons(req, res) {
     try {
-      let { page = '1', limit = '10', search } = req.query;
+      let { page = "1", limit = "10", search } = req.query;
       page = parseInt(page);
-      if (page === 'NaN') {
+      if (page === "NaN") {
         page = 1;
       }
       limit = parseInt(limit);
-      if (limit === 'NaN') {
+      if (limit === "NaN") {
         limit = 1;
       }
       const offset = (page - 1) * limit;
       const replacementObj = {
         offset,
         limit,
-        search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
-      }
+        search:
+          search === "" || search === undefined || search === null
+            ? null
+            : `%${search}%`,
+        is_search: !(search === "" || search === undefined || search === null)
+      };
       const persons = await DbService.getPersons(replacementObj);
       const countObj = await DbService.getPersonCount(replacementObj);
       const responseObj = {
         persons,
         count: countObj[0].count
-      }
+      };
       return Promise.resolve(responseObj);
     } catch (e) {
       return Promise.reject(e);

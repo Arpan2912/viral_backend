@@ -12,19 +12,24 @@ module.exports = {
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
   getPersons: `select u_uuid as uuid,first_name,last_name,address,designation,company,phone,email from persons
-  where (case when :search then upper(concat (first_name,' ',last_name)) like upper(:search) or upper(company)=upper(:search) or upper(phone)=upper(:search) else true end)
+  where (case when :is_search then upper(concat (first_name,' ',last_name)) like upper(:search) or 
+  upper(company) like upper(:search) or
+  upper(designation) like upper(:search)
+  or upper(phone) like upper(:search) else true end)
   offset :offset limit :limit  
   `,
 
   getPersonCount: `select count(*) from persons
-  where (case when :search then upper(concat (first_name,' ',last_name)) like upper(:search) or upper(company)=upper(:search) or upper(phone)=upper(:search) else true end)
+  where (case when :is_search then upper(concat (first_name,' ',last_name)) like upper(:search) or 
+  upper(company) like upper(:search) or
+  upper(designation) like upper(:search) or upper(phone) like upper(:search) else true end)
   `,
   getRoughList: `select u_uuid as rough_id,rough_name,weight,price,unit,purchase_date from roughs 
-    where (case when :search then upper(rough_name)=upper(:search) else true end) offset :offset limit :limit
+    where (case when :is_search then upper(rough_name) like upper(:search) else true end) offset :offset limit :limit
   `,
 
   getRoughCount: `select count(*) from roughs 
-  where (case when :search then upper(rough_name)=upper(:search) else true end)
+  where (case when :is_search then upper(rough_name) like upper(:search) else true end)
 `,
   getLotList: `select l.u_uuid as lot_id,r.u_uuid as rough_id,l.lot_name,l.weight,l.unit,r.rough_name from lot_data as l
   inner join roughs as r on r.id=l.rough_id where l.rough_id=:rough_id`,
@@ -42,12 +47,12 @@ module.exports = {
     inner join persons as  p on p.id = h.person_id
     right join lot_data as l on h.lot_id=l.id
     inner join roughs as r on r.id=l.rough_id 
-    where (case when :search then upper(r.rough_name)=upper(:search) else true end)  offset :offset limit :limit
+    where (case when :is_search then upper(r.rough_name) like upper(:search) else true end)  offset :offset limit :limit
   )
   select * from all_data`,
 
   qGetTotalLotCount: `select count(*) from lot_data as l left join roughs as r  on r.id=l.rough_id 
-  where (case when :search then upper(r.rough_name)=upper(:search) else true end)`,
+  where (case when :is_search then upper(r.rough_name) like upper(:search) else true end)`,
   getLatestLotStatus: `select status,end_date from lot_history where lot_id=:lot_id order by id desc;`,
   qGetRoughCurrentStatusByRoughId: `
     with last_status as (

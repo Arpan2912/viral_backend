@@ -159,28 +159,32 @@ module.exports = class Rough {
 
   static async getRough(req, res) {
     try {
-      let { page = '1', limit = '10', search } = req.query;
+      let { page = "1", limit = "10", search } = req.query;
       page = parseInt(page);
-      if (page === 'NaN') {
+      if (page === "NaN") {
         page = 1;
       }
       limit = parseInt(limit);
-      if (limit === 'NaN') {
+      if (limit === "NaN") {
         limit = 1;
       }
       const offset = (page - 1) * limit;
       const replacementObj = {
         offset,
         limit,
-        search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
-      }
+        search:
+          search === "" || search === undefined || search === null
+            ? null
+            : `%${search}%`,
+        is_search: !(search === "" || search === undefined || search === null)
+      };
       const roughs = await DbService.getLotCurrentStatus(replacementObj);
       const countObj = await DbService.getTotalLotCount(replacementObj);
       console.log("countObj", countObj);
       const responseObj = {
         roughs,
         count: countObj[0].count
-      }
+      };
       return Promise.resolve(responseObj);
     } catch (e) {
       return Promise.reject(e);
@@ -188,27 +192,31 @@ module.exports = class Rough {
   }
 
   static async getRoughList(req, res) {
-    let { page = '1', limit = '10', search } = req.query;
+    let { page = "1", limit = "10", search } = req.query;
     page = parseInt(page);
-    if (page === 'NaN') {
+    if (page === "NaN") {
       page = 1;
     }
     limit = parseInt(limit);
-    if (limit === 'NaN') {
+    if (limit === "NaN") {
       limit = 1;
     }
     const offset = (page - 1) * limit;
     const replacementObj = {
       offset,
       limit,
-      search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
-    }
+      search:
+        search === "" || search === undefined || search === null
+          ? null
+          : `%${search}%`,
+      is_search: !(search === "" || search === undefined || search === null)
+    };
     const roughs = await DbService.getRoughList(replacementObj);
     const countObj = await DbService.getRoughCount(replacementObj);
     const responseObj = {
       roughs,
       count: countObj[0].count
-    }
+    };
     return Promise.resolve(responseObj);
   }
 
