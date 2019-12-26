@@ -34,7 +34,9 @@ const {
   getLatestLotStatus,
   createUser,
   getUserDetail,
-  qGetTotalLotCount
+  qGetTotalLotCount,
+  getRoughCount,
+  getPersonCount
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -110,6 +112,10 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(getPersons, replacemenObj, "select");
   }
 
+  static getPersonCount(replacemenObj = {}) {
+    return DbService.executeSqlQuery(getPersonCount, replacemenObj, "select");
+  }
+
   static getLatestLotStatus(replacemenObj = {}) {
     return DbService.executeSqlQuery(
       getLatestLotStatus,
@@ -118,13 +124,17 @@ module.exports = class DbService {
     );
   }
 
-  static getTotalLotCount(replacementObj){
+  static getTotalLotCount(replacementObj) {
     return DbService.executeSqlQuery(qGetTotalLotCount, replacementObj, "select");
 
   }
 
   static getRoughList(replacementObj) {
     return DbService.executeSqlQuery(getRoughList, replacementObj, "select");
+  }
+
+  static getRoughCount(replacementObj) {
+    return DbService.executeSqlQuery(getRoughCount, replacementObj, "select");
   }
 
   static getLotList(roughId) {
@@ -172,6 +182,7 @@ module.exports = class DbService {
   }
 
   static getLotCurrentStatus(replacemenObj) {
+    console.log("replacemenObj", replacemenObj)
     return DbService.executeSqlQuery(
       qGetLotCurrentStatus,
       replacemenObj,

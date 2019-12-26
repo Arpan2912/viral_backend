@@ -111,10 +111,15 @@ module.exports = class PersonService {
       const replacementObj = {
         offset,
         limit,
-        search
+        search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
       }
       const persons = await DbService.getPersons(replacementObj);
-      return Promise.resolve(persons);
+      const countObj = await DbService.getPersonCount(replacementObj);
+      const responseObj = {
+        persons,
+        count: countObj[0].count
+      }
+      return Promise.resolve(responseObj);
     } catch (e) {
       return Promise.reject(e);
     }

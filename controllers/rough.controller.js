@@ -57,12 +57,10 @@ module.exports = class RoughController {
   static async getRough(req, res) {
     try {
       const roughData = await RoughService.getRough(req, res);
-      const obj = {
-        roughs: roughData
-      };
+
       const responseObj = CommonService.prepareSuccessResponse(
         "Get rough successfully",
-        obj
+        roughData
       );
       return res.status(200).send(responseObj);
     } catch (e) {

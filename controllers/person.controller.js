@@ -18,12 +18,10 @@ module.exports = class PersonController {
   static async getPersons(req, res) {
     try {
       const persons = await PersonService.getPersons(req, res);
-      const obj = {
-        persons
-      };
+     
       const responseObj = CommonService.prepareSuccessResponse(
         "Get person successfully",
-        obj
+        persons
       );
       return res.status(200).send(responseObj);
     } catch (e) {

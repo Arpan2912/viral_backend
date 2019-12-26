@@ -172,13 +172,14 @@ module.exports = class Rough {
       const replacementObj = {
         offset,
         limit,
-        search
+        search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
       }
       const roughs = await DbService.getLotCurrentStatus(replacementObj);
       const countObj = await DbService.getTotalLotCount(replacementObj);
+      console.log("countObj", countObj);
       const responseObj = {
         roughs,
-        count: countObj[0][0].count
+        count: countObj[0].count
       }
       return Promise.resolve(responseObj);
     } catch (e) {
@@ -200,10 +201,15 @@ module.exports = class Rough {
     const replacementObj = {
       offset,
       limit,
-      search
+      search: (search === '' || search === undefined || search === null) ? null : `%${search}%`
     }
     const roughs = await DbService.getRoughList(replacementObj);
-    return Promise.resolve(roughs);
+    const countObj = await DbService.getRoughCount(replacementObj);
+    const responseObj = {
+      roughs,
+      count: countObj[0].count
+    }
+    return Promise.resolve(responseObj);
   }
 
   static async getLotList(req, res) {
