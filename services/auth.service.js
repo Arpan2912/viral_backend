@@ -83,6 +83,7 @@ module.exports = class AuthService {
         email: user.email,
         phone: user.phone,
         userId: user.u_uuid,
+        userType: user.user_type,
         token
       };
 

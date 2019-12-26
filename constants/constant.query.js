@@ -24,7 +24,7 @@ module.exports = {
   upper(company) like upper(:search) or
   upper(designation) like upper(:search) or upper(phone) like upper(:search) else true end)
   `,
-  getRoughList: `select u_uuid as rough_id,rough_name,weight,price,unit,purchase_date from roughs 
+  getRoughList: `select u_uuid as rough_id,rough_name,weight,(case when :user_type='admin' then price else null end) as price,unit,purchase_date from roughs 
     where (case when :is_search then upper(rough_name) like upper(:search) else true end) offset :offset limit :limit
   `,
 
@@ -39,7 +39,7 @@ module.exports = {
   ),
   all_data as (
     select r.u_uuid as rough_id,l.u_uuid as lot_id,l.lot_name,r.rough_name,r.weight,r.unit,l.weight as lot_weight,l.unit as lot_unit,
-    r.price,status,start_date,end_date,submitted_to_person_id,
+    (case when :user_type='admin' then r.price else null end) as price,status,start_date,end_date,submitted_to_person_id,
     p.first_name,p.last_name,p.u_uuid as person_id
     from 
     lot_history as h 
@@ -218,8 +218,9 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,labour_rate=:labour_rate,
-  total_labour=:total_labour,labour_history_id=:labour_history_id,submitted_to_person_id=:submitted_to_person_id
+  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,
+  labour_rate=:labour_rate,total_labour=:total_labour,labour_history_id=:labour_history_id,dollar=:dollar,
+  submitted_to_person_id=:submitted_to_person_id
   where id=:history_id`,
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 

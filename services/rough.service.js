@@ -159,6 +159,7 @@ module.exports = class Rough {
 
   static async getRough(req, res) {
     try {
+      const { user_type } = req.userDetail;
       let { page = "1", limit = "10", search } = req.query;
       page = parseInt(page);
       if (page === "NaN") {
@@ -176,7 +177,8 @@ module.exports = class Rough {
           search === "" || search === undefined || search === null
             ? null
             : `%${search}%`,
-        is_search: !(search === "" || search === undefined || search === null)
+        is_search: !(search === "" || search === undefined || search === null),
+        user_type
       };
       const roughs = await DbService.getLotCurrentStatus(replacementObj);
       const countObj = await DbService.getTotalLotCount(replacementObj);
@@ -192,6 +194,8 @@ module.exports = class Rough {
   }
 
   static async getRoughList(req, res) {
+    const { user_type } = req.userDetail;
+
     let { page = "1", limit = "10", search } = req.query;
     page = parseInt(page);
     if (page === "NaN") {
@@ -209,7 +213,8 @@ module.exports = class Rough {
         search === "" || search === undefined || search === null
           ? null
           : `%${search}%`,
-      is_search: !(search === "" || search === undefined || search === null)
+      is_search: !(search === "" || search === undefined || search === null),
+      user_type
     };
     const roughs = await DbService.getRoughList(replacementObj);
     const countObj = await DbService.getRoughCount(replacementObj);
@@ -428,7 +433,8 @@ module.exports = class Rough {
       personId: personUuid,
       labourRate = null,
       totalLabour = null,
-      labourHistoryId: labourHistoryUuid = null
+      labourHistoryId: labourHistoryUuid = null,
+      dollar = null
     } = req.body;
     const { id } = req.userDetail;
 
@@ -488,6 +494,7 @@ module.exports = class Rough {
           getHistoryIdReplacement,
           "rough_history"
         );
+        console.log("lotHistory", lotHistory);
         labourHistoryId = lotHistory[0].id;
       }
 
@@ -531,6 +538,7 @@ module.exports = class Rough {
         const updateReplacement = {
           labour_rate: labourRate,
           total_labour: totalLabour,
+          dollar,
           labour_history_id: labourHistoryId,
           submitted_to_person_id: personId,
           end_date: new Date().toISOString(),
@@ -570,6 +578,7 @@ module.exports = class Rough {
         const updateReplacement = {
           labour_rate: labourRate,
           total_labour: totalLabour,
+          dollar,
           labour_history_id: labourHistoryId,
           submitted_to_person_id: personId,
           end_date: new Date().toISOString(),

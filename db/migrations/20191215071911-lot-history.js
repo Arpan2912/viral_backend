@@ -31,6 +31,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true
       },
+      dollar: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       labour_rate: {
         type: Sequelize.STRING,
         allowNull: true

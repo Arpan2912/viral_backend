@@ -125,8 +125,11 @@ module.exports = class DbService {
   }
 
   static getTotalLotCount(replacementObj) {
-    return DbService.executeSqlQuery(qGetTotalLotCount, replacementObj, "select");
-
+    return DbService.executeSqlQuery(
+      qGetTotalLotCount,
+      replacementObj,
+      "select"
+    );
   }
 
   static getRoughList(replacementObj) {
@@ -182,7 +185,7 @@ module.exports = class DbService {
   }
 
   static getLotCurrentStatus(replacemenObj) {
-    console.log("replacemenObj", replacemenObj)
+    console.log("replacemenObj", replacemenObj);
     return DbService.executeSqlQuery(
       qGetLotCurrentStatus,
       replacemenObj,
