@@ -11,8 +11,13 @@ module.exports = {
   getRoughHistoryIdFromUuid: `select id from lot_history where u_uuid=:uuid`,
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
-  getPersons: `select u_uuid as uuid,first_name,last_name,address,designation,company,phone,email from persons`,
-  getRoughList: `select u_uuid as rough_id,rough_name,weight,price,unit,purchase_date from roughs`,
+  getPersons: `select u_uuid as uuid,first_name,last_name,address,designation,company,phone,email from persons
+  where (case when :search then upper(concat (first_name,' ',last_name)) like upper(:search) or upper(company)=upper(:search) or upper(phone)=upper(:search)) else true end)
+  offset :offset limit :limit  
+  `,
+  getRoughList: `select u_uuid as rough_id,rough_name,weight,price,unit,purchase_date from roughs 
+    where (case when :search then upper(rough_name)=upper(:search) else true end) offset :offset limit :limit
+  `,
   getLotList: `select l.u_uuid as lot_id,r.u_uuid as rough_id,l.lot_name,l.weight,l.unit,r.rough_name from lot_data as l
   inner join roughs as r on r.id=l.rough_id where l.rough_id=:rough_id`,
   qGetLotCurrentStatus: `
@@ -21,16 +26,19 @@ module.exports = {
   ),
   all_data as (
     select r.u_uuid as rough_id,l.u_uuid as lot_id,l.lot_name,r.rough_name,r.weight,r.unit,l.weight as lot_weight,l.unit as lot_unit,
-    r.price,status,start_date,end_date,
+    r.price,status,start_date,end_date,submitted_to_person_id,
     p.first_name,p.last_name,p.u_uuid as person_id
     from 
     lot_history as h 
     inner join last_status as ls on ls.max=h.id 
     inner join persons as  p on p.id = h.person_id
     right join lot_data as l on h.lot_id=l.id
-    inner join roughs as r on r.id=l.rough_id   
+    inner join roughs as r on r.id=l.rough_id 
+    where (case when :search then upper(r.rough_name)=upper(:search) else true end)  offset :offset limit :limit
   )
   select * from all_data`,
+
+  qGetTotalLotCount: `select count(*) from lot_data l left join roughs r as r on r.id=l.rough_id (case when :search then upper(r.rough_name)=upper(:search) else true end)`,
   getLatestLotStatus: `select status,end_date from lot_history where lot_id=:lot_id order by id desc;`,
   qGetRoughCurrentStatusByRoughId: `
     with last_status as (
@@ -197,7 +205,7 @@ module.exports = {
     )`,
 
   updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,labour_rate=:labour_rate,
-  total_labour=:total_labour,labour_history_id=:labour_history_id
+  total_labour=:total_labour,labour_history_id=:labour_history_id,submitted_to_person_id=:submitted_to_person_id
   where id=:history_id`,
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 

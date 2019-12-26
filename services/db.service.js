@@ -33,7 +33,8 @@ const {
   getLotList,
   getLatestLotStatus,
   createUser,
-  getUserDetail
+  getUserDetail,
+  qGetTotalLotCount
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -117,8 +118,13 @@ module.exports = class DbService {
     );
   }
 
-  static getRoughList() {
-    return DbService.executeSqlQuery(getRoughList, null, "select");
+  static getTotalLotCount(replacementObj){
+    return DbService.executeSqlQuery(qGetTotalLotCount, replacementObj, "select");
+
+  }
+
+  static getRoughList(replacementObj) {
+    return DbService.executeSqlQuery(getRoughList, replacementObj, "select");
   }
 
   static getLotList(roughId) {

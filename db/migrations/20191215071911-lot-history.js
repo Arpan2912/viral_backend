@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      submitted_to_person_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       labour_history_id: {
         type: Sequelize.INTEGER,
         allowNull: true

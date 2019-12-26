@@ -98,7 +98,22 @@ module.exports = class PersonService {
 
   static async getPersons(req, res) {
     try {
-      const persons = await DbService.getPersons();
+      let { page = '1', limit = '10', search } = req.query;
+      page = parseInt(page);
+      if (page === 'NaN') {
+        page = 1;
+      }
+      limit = parseInt(limit);
+      if (limit === 'NaN') {
+        limit = 1;
+      }
+      const offset = (page - 1) * limit;
+      const replacementObj = {
+        offset,
+        limit,
+        search
+      }
+      const persons = await DbService.getPersons(replacementObj);
       return Promise.resolve(persons);
     } catch (e) {
       return Promise.reject(e);

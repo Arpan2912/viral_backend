@@ -159,15 +159,50 @@ module.exports = class Rough {
 
   static async getRough(req, res) {
     try {
-      const roughs = await DbService.getLotCurrentStatus();
-      return Promise.resolve(roughs);
+      let { page = '1', limit = '10', search } = req.query;
+      page = parseInt(page);
+      if (page === 'NaN') {
+        page = 1;
+      }
+      limit = parseInt(limit);
+      if (limit === 'NaN') {
+        limit = 1;
+      }
+      const offset = (page - 1) * limit;
+      const replacementObj = {
+        offset,
+        limit,
+        search
+      }
+      const roughs = await DbService.getLotCurrentStatus(replacementObj);
+      const countObj = await DbService.getTotalLotCount(replacementObj);
+      const responseObj = {
+        roughs,
+        count: countObj[0][0].count
+      }
+      return Promise.resolve(responseObj);
     } catch (e) {
       return Promise.reject(e);
     }
   }
 
   static async getRoughList(req, res) {
-    const roughs = await DbService.getRoughList();
+    let { page = '1', limit = '10', search } = req.query;
+    page = parseInt(page);
+    if (page === 'NaN') {
+      page = 1;
+    }
+    limit = parseInt(limit);
+    if (limit === 'NaN') {
+      limit = 1;
+    }
+    const offset = (page - 1) * limit;
+    const replacementObj = {
+      offset,
+      limit,
+      search
+    }
+    const roughs = await DbService.getRoughList(replacementObj);
     return Promise.resolve(roughs);
   }
 
@@ -483,6 +518,7 @@ module.exports = class Rough {
           labour_rate: labourRate,
           total_labour: totalLabour,
           labour_history_id: labourHistoryId,
+          submitted_to_person_id: personId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           updated_by: id,
@@ -521,6 +557,7 @@ module.exports = class Rough {
           labour_rate: labourRate,
           total_labour: totalLabour,
           labour_history_id: labourHistoryId,
+          submitted_to_person_id: personId,
           end_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           updated_by: id,
