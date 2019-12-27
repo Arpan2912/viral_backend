@@ -24,7 +24,7 @@ module.exports = class CommonService {
 
   static logErrorAndSendResponse(e, res, data) {
     // const msg = e.msg ? e.msg : "commonMsg.defaultErrorMessage";
-    const msg = e.msg ? e.msg : commonMsg.defaultErrorMessage;
+    const msg = e.msg ? e.msg : commonMsg;
     const code = e.code ? e.code : 500;
     // eslint-disable-next-line no-console
     console.error(e);
