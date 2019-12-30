@@ -19,6 +19,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      dollar: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       weight: {
         type: Sequelize.STRING,
         allowNull: true

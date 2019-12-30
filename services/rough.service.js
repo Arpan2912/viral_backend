@@ -8,6 +8,7 @@ module.exports = class Rough {
       weight,
       unit,
       price,
+      dollar,
       purchaseDate,
       roughs = []
     } = req.body;
@@ -20,6 +21,7 @@ module.exports = class Rough {
         weight,
         unit,
         price,
+        dollar,
         purchase_date: purchaseDate,
         is_active: true,
         is_deleted: false,
@@ -98,6 +100,7 @@ module.exports = class Rough {
     const {
       roughName,
       price,
+      dollar,
       weight,
       unit,
       roughId: roughUuid,
@@ -123,6 +126,7 @@ module.exports = class Rough {
       weight,
       unit,
       price,
+      dollar,
       purchase_date: purchaseDate,
       rough_id: roughDetail[0].id // add check if rough not exist
     };

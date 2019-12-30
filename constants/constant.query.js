@@ -24,8 +24,10 @@ module.exports = {
   upper(company) like upper(:search) or
   upper(designation) like upper(:search) or upper(phone) like upper(:search) else true end)
   `,
-  getRoughList: `select u_uuid as rough_id,rough_name,weight,(case when :user_type='admin' then price else null end) as price,unit,purchase_date from roughs 
-    where (case when :is_search then upper(rough_name) like upper(:search) else true end) offset :offset limit :limit
+  getRoughList: `select u_uuid as rough_id,rough_name,weight,dollar,
+  (case when :user_type='admin' then price else null end) as price,unit,purchase_date 
+  from roughs 
+  where (case when :is_search then upper(rough_name) like upper(:search) else true end) offset :offset limit :limit
   `,
 
   getRoughCount: `select count(*) from roughs 
@@ -38,7 +40,8 @@ module.exports = {
     select max(id),lot_id from lot_history group by lot_id
   ),
   all_data as (
-    select r.u_uuid as rough_id,l.u_uuid as lot_id,l.lot_name,r.rough_name,r.weight,r.unit,l.weight as lot_weight,l.unit as lot_unit,
+    select r.u_uuid as rough_id,r.dollar,
+    l.u_uuid as lot_id,l.lot_name,r.rough_name,r.weight,r.unit,l.weight as lot_weight,l.unit as lot_unit,
     (case when :user_type='admin' then r.price else null end) as price,status,start_date,end_date,submitted_to_person_id,
     p.first_name,p.last_name,p.u_uuid as person_id
     from 
@@ -71,7 +74,8 @@ module.exports = {
       where l.id=:lot_id
     )
     select * from all_data`,
-  getLotHistory: `select l.lot_name,r.rough_name,h.id,l.u_uuid as lot_id,r.u_uuid as rough_id,
+  getLotHistory: `select l.lot_name,r.rough_name,h.id,l.u_uuid as lot_id,h.labour_rate,h.dollar,h.total_labour,
+    r.u_uuid as rough_id,
     h.u_uuid as history_id,first_name,last_name,status,start_date,end_date 
     from lot_history as h 
     inner join persons p on h.person_id=p.id
@@ -119,10 +123,10 @@ module.exports = {
   select u_uuid,stone_name,weight,unit,history_id from block_result
   where lot_id=:lot_id and history_id=:history_id`,
 
-  insertRough: `insert into roughs (u_uuid,rough_name,price,weight,unit,purchase_date,
+  insertRough: `insert into roughs (u_uuid,rough_name,price,weight,unit,purchase_date,dollar,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
-      :uuid,:rough_name,:price,:weight,:unit,:purchase_date,
+      :uuid,:rough_name,:price,:weight,:unit,:purchase_date,:dollar,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at 
     ) returning id;
     `,
@@ -150,6 +154,10 @@ module.exports = {
     if (replacement.price) {
       q += `,price=:price`;
     }
+    if (replacement.dollar) {
+      q += `,dollar=:dollar`;
+    }
+
     if (replacement.purchase_date) {
       q += `,purchase_date=:purchase_date`;
     }
