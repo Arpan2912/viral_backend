@@ -30,6 +30,7 @@ module.exports = {
   where (case when :is_search then upper(rough_name) like upper(:search) else true end) offset :offset limit :limit
   `,
 
+  getLotHistoryData: `select * from lot_history where id=:history_id`,
   getRoughCount: `select count(*) from roughs 
   where (case when :is_search then upper(rough_name) like upper(:search) else true end)
 `,
@@ -83,6 +84,8 @@ module.exports = {
     inner join roughs as r on r.id=l.rough_id
     where lot_id=:lot_id order by h.id desc`,
 
+  getLotTotalLabourForLot: `select sum(total_labour::integer) from lot_history where lot_id=:lot_id`,
+
   getRoughDetail: `select r.id,r.u_uuid as rough_id,rough_name,weight,unit,status from roughs as r left join lot_history as h  on r.id=h.rough_id
   where r.rough_id=:rough_id
   `,
@@ -95,6 +98,7 @@ module.exports = {
   inner join lot_history as h on h.id=p.history_id 
   where history_id in (select max from latest_plan)`,
 
+  getPlanDetailForHistoryId: `select * from plan_result where history_id=:history_id`,
   getLsDetailOfRough: `
   with latest_plan as (
     select max(history_id) from ls_result where lot_id=:lot_id group by lot_id
@@ -102,6 +106,7 @@ module.exports = {
   select l.u_uuid,l.stone_name,l.weight,l.unit,l.history_id,h.u_uuid as history_uuid from ls_result as l 
   inner join lot_history as h on h.id=l.history_id 
   where l.history_id in (select max from latest_plan)`,
+  getLsDetailForHistoryId: `select * from ls_result where history_id=:history_id`,
 
   getBlockDetailOfRough: `
   with latest_plan as (
@@ -110,6 +115,7 @@ module.exports = {
   select b.u_uuid,b.stone_name,b.weight,b.unit,b.history_id,h.u_uuid as history_uuid from block_result as b
   inner join lot_history as h on h.id=b.history_id 
   where b.history_id in (select max from latest_plan)`,
+  getBlockDetailForHistoryId: `select * from block_result where history_id=:history_id`,
 
   getPlanDetailOfRoughBasedOnHistoryId: `
   select u_uuid,stone_name,weight,unit,history_id from plan_result 

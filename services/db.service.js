@@ -36,7 +36,12 @@ const {
   getUserDetail,
   qGetTotalLotCount,
   getRoughCount,
-  getPersonCount
+  getPersonCount,
+  getLotTotalLabourForLot,
+  getLotHistoryData,
+  getBlockDetailForHistoryId,
+  getLsDetailForHistoryId,
+  getPlanDetailForHistoryId
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -132,6 +137,22 @@ module.exports = class DbService {
     );
   }
 
+  static getTotalLabourForLot(replacementObj) {
+    return DbService.executeSqlQuery(
+      getLotTotalLabourForLot,
+      replacementObj,
+      "select"
+    );
+  }
+
+  static getLotHistoryData(replacementObj) {
+    return DbService.executeSqlQuery(
+      getLotHistoryData,
+      replacementObj,
+      "select"
+    );
+  }
+
   static getRoughList(replacementObj) {
     return DbService.executeSqlQuery(getRoughList, replacementObj, "select");
   }
@@ -217,6 +238,14 @@ module.exports = class DbService {
     );
   }
 
+  static getPlanDetailOfRoughForHistoryId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getPlanDetailForHistoryId,
+      replacemenObj,
+      "select"
+    );
+  }
+
   static getLsDetailOfRough(replacemenObj) {
     return DbService.executeSqlQuery(
       getLsDetailOfRough,
@@ -225,9 +254,25 @@ module.exports = class DbService {
     );
   }
 
+  static getLsDetailOfRoughForHistoryId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getLsDetailForHistoryId,
+      replacemenObj,
+      "select"
+    );
+  }
+
   static getBlockDetailOfRough(replacemenObj) {
     return DbService.executeSqlQuery(
       getBlockDetailOfRough,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getBlockDetailOfRoughForHistoryId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getBlockDetailForHistoryId,
       replacemenObj,
       "select"
     );

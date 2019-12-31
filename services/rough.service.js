@@ -312,7 +312,8 @@ module.exports = class Rough {
       };
       console.log(replacementObj);
       const lotHistory = await DbService.getLotHistory(replacementObj);
-      console.log("lotHistory", lotHistory);
+      let totalLotLabour = await DbService.getTotalLabourForLot(replacementObj);
+      totalLotLabour = totalLotLabour[0].sum;
       for (let i = 0; i < lotHistory.length; i += 1) {
         const currentData = lotHistory[i];
         const obj = {
@@ -351,7 +352,11 @@ module.exports = class Rough {
           currentData.detailData = blockData;
         }
       }
-      return Promise.resolve(lotHistory);
+      const responseObj = {
+        totalLabour: totalLotLabour,
+        roughs: lotHistory
+      };
+      return Promise.resolve(responseObj);
     } catch (e) {
       return Promise.reject(e);
     }
@@ -689,5 +694,62 @@ module.exports = class Rough {
     } catch (e) {
       return Promise.reject(e);
     }
+  }
+
+  static async updateLotHistory(req, res) {
+    const { labour, historyId: historyUuid } = req.body;
+    // get labour history_id from history_id
+    const getIdReplacement = {
+      uuid: historyUuid
+    };
+    const historyIdDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "rough_history"
+    );
+    const historyId = historyIdDetail[0].id;
+    const replacementObj = {
+      history_id: historyId
+    };
+
+    const historyDetail = await DbService.getLotHistoryData(replacementObj);
+    // check if it is null or not
+    // if not null
+    if (historyDetail.labour_history_id) {
+      const replacementStatusObj = {
+        history_id: historyDetail.labour_history_id
+      };
+
+      // then get status for labour_history_id
+      const historyStatusDetail = await DbService.getLotHistoryData(
+        replacementStatusObj
+      );
+      // from status find it in specific plan/ls/block table
+      const replacementStoneObj = {
+        history_id: historyDetail.labour_history_id
+      };
+      let stoneDetail = null;
+      if (historyStatusDetail.status === "planning") {
+        stoneDetail = await DbService.getPlanDetailOfRoughForHistoryId(
+          replacementStoneObj
+        );
+      } else if (status === "ls") {
+        stoneDetail = await DbService.getLsDetailOfRoughForHistoryId(
+          replacementStoneObj
+        );
+      } else if (status === "block") {
+        stoneDetail = await DbService.getBlockDetailOfRoughForHistoryId(
+          replacementStoneObj
+        );
+      }
+    } else {
+      // if null
+    }
+    // q = `select status from labour_history where id=labour_history_id`;
+    const status = null;
+
+    // count labourconst
+    // find lot_data from lot_id in lot_data table
+    // q = `select * from lot_data where id=lot_id`;
+    // calculate labour
   }
 };

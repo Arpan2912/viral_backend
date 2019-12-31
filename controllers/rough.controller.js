@@ -97,12 +97,12 @@ module.exports = class RoughController {
   static async getLotHistory(req, res) {
     try {
       const roughData = await RoughService.getLotHistory(req, res);
-      const obj = {
-        roughs: roughData
-      };
+      // const obj = {
+      //   roughs: roughData
+      // };
       const responseObj = CommonService.prepareSuccessResponse(
         "Get lot history successfully",
-        obj
+        roughData
       );
       return res.status(200).send(responseObj);
     } catch (e) {
