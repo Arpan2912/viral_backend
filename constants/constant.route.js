@@ -21,6 +21,7 @@ module.exports = {
     addRoughHistory: "/add-rough-history",
     getRoughList: "/get-rough-list",
     getLotList: "/get-lot-list",
-    getLotStoneList: "/get-lot-stone-list"
+    getLotStoneList: "/get-lot-stone-list",
+    updateLotHistory:"/update-lot-history"
   }
 };

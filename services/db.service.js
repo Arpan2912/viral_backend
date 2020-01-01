@@ -41,7 +41,8 @@ const {
   getLotHistoryData,
   getBlockDetailForHistoryId,
   getLsDetailForHistoryId,
-  getPlanDetailForHistoryId
+  getPlanDetailForHistoryId,
+  getLotData
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -102,9 +103,16 @@ module.exports = class DbService {
   }
 
   static updateLotHistory(replacemenObj) {
-    return DbService.executeSqlQuery(updateLotHistory, replacemenObj, "update");
+    return DbService.executeSqlQuery(updateLotHistory(replacemenObj), replacemenObj, "update");
   }
 
+  static getLotData(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getLotData,
+      replacemenObj,
+      "select"
+    );
+  }
   static updatePerson(replacemenObj) {
     return DbService.executeSqlQuery(
       updatePerson(replacemenObj),

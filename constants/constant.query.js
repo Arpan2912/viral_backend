@@ -36,6 +36,9 @@ module.exports = {
 `,
   getLotList: `select l.u_uuid as lot_id,r.u_uuid as rough_id,l.lot_name,l.weight,l.unit,r.rough_name from lot_data as l
   inner join roughs as r on r.id=l.rough_id where l.rough_id=:rough_id`,
+
+  getLotData: `select * from lot_data where id=:lot_id`,
+
   qGetLotCurrentStatus: `
   with last_status as (
     select max(id),lot_id from lot_history group by lot_id
@@ -232,10 +235,35 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-  updateLotHistory: `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,
-  labour_rate=:labour_rate,total_labour=:total_labour,labour_history_id=:labour_history_id,dollar=:dollar,
-  submitted_to_person_id=:submitted_to_person_id
-  where id=:history_id`,
+
+  updateLotHistory: (replacement) => {
+    let q = `update  lot_history updated_at=:updated_at,updated_by=:updated_by`
+    if (replacement.end_date) {
+      q += `,end_date=:end_date`
+    }
+    if (replacement.labour_rate) {
+      q += `,labour_rate=:labour_rate`
+    }
+    if (replacement.total_labour) {
+      q += `,total_labour=:total_labour`
+    }
+    if (replacement.labour_history_id) {
+      q += `,labour_history_id=:labour_history_id`
+    }
+    if (replacement.dollar) {
+      q += `,dollar=:dollar`
+    }
+    if (replacement.submitted_to_person_id) {
+      q += `,submitted_to_person_id=:submitted_to_person_id`
+    }
+    q += ` where id=:history_id`;
+    return q;
+    //   `update  lot_history set end_date=:end_date,updated_at=:updated_at,updated_by=:updated_by,
+    // labour_rate=:labour_rate,total_labour=:total_labour,labour_history_id=:labour_history_id,dollar=:dollar,
+    // submitted_to_person_id=:submitted_to_person_id
+    // where id=:history_id`
+  }
+  ,
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (

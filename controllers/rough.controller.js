@@ -186,4 +186,17 @@ module.exports = class RoughController {
       CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
+
+  static async updateLotHistory(req, res) {
+    try {
+      await RoughService.updateLotHistory(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Rough history updated successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
 };

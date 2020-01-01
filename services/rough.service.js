@@ -711,18 +711,25 @@ module.exports = class Rough {
       history_id: historyId
     };
 
-    const historyDetail = await DbService.getLotHistoryData(replacementObj);
+    let labourInFloat = parseFloat(labour);
+    let totalLabour = 0;
+
+    let historyDetail = await DbService.getLotHistoryData(replacementObj);
+    historyDetail = historyDetail[0];
     // check if it is null or not
     // if not null
-    if (historyDetail.labour_history_id) {
+
+    if (historyDetail && historyDetail.labour_history_id) {
       const replacementStatusObj = {
         history_id: historyDetail.labour_history_id
       };
 
       // then get status for labour_history_id
-      const historyStatusDetail = await DbService.getLotHistoryData(
+      let historyStatusDetail = await DbService.getLotHistoryData(
         replacementStatusObj
       );
+
+      historyStatusDetail = historyStatusDetail[0];
       // from status find it in specific plan/ls/block table
       const replacementStoneObj = {
         history_id: historyDetail.labour_history_id
@@ -741,11 +748,44 @@ module.exports = class Rough {
           replacementStoneObj
         );
       }
+
+      if (stoneDetail.length > 0) {
+        let totalWeight = 0;
+        for (let i = 0; i < stoneDetail.length; i++) {
+          const currentData = stoneDetail[i];
+          let weight = currentData.weight ? parseFloat(currentData.weight) : 0;
+          const unit = currentData.unit;
+          if (unit === 'carat') {
+            weight = weight * 100;
+          }
+          totalWeight = totalWeight + weight;
+        }
+        totalLabour = (totalWeight * labourInFloat) / 100;
+      }
+
     } else {
+      const replacementObj = {
+        lot_id: historyDetail.lot_id
+      }
+      let lotData = await DbService.getLotData(replacementObj);
+      lotData = lotData[0];
+      let weight = lotData.weight ? parseFloat(lotData.weight) : 0;
+      const unit = lotData.unit;
+      if (unit === 'carat') {
+        weight = weight * 100;
+      }
+      totalLabour = (weight * labourInFloat) / 100;
       // if null
     }
+    let updateReplacement = {
+      labour_rate: labourInFloat,
+      total_labour: totalLabour,
+      id: historyId
+    }
+    await DbService.updateLotHistory(updateReplacement);
+    return Promise.resolve();
     // q = `select status from labour_history where id=labour_history_id`;
-    const status = null;
+    // const status = null;
 
     // count labourconst
     // find lot_data from lot_id in lot_data table
