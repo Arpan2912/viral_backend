@@ -42,7 +42,10 @@ const {
   getBlockDetailForHistoryId,
   getLsDetailForHistoryId,
   getPlanDetailForHistoryId,
-  getLotData
+  getLotData,
+  updateBlockResult,
+  updateLsResult,
+  updatePlanResult
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -103,16 +106,17 @@ module.exports = class DbService {
   }
 
   static updateLotHistory(replacemenObj) {
-    return DbService.executeSqlQuery(updateLotHistory(replacemenObj), replacemenObj, "update");
+    return DbService.executeSqlQuery(
+      updateLotHistory(replacemenObj),
+      replacemenObj,
+      "update"
+    );
   }
 
   static getLotData(replacemenObj) {
-    return DbService.executeSqlQuery(
-      getLotData,
-      replacemenObj,
-      "select"
-    );
+    return DbService.executeSqlQuery(getLotData, replacemenObj, "select");
   }
+
   static updatePerson(replacemenObj) {
     return DbService.executeSqlQuery(
       updatePerson(replacemenObj),
@@ -236,6 +240,30 @@ module.exports = class DbService {
 
   static getRoughDetail(replacemenObj) {
     return DbService.executeSqlQuery(getRoughDetail, replacemenObj, "select");
+  }
+
+  static updatePlanResult(replacementObj) {
+    return DbService.executeSqlQuery(
+      updatePlanResult(replacementObj),
+      replacementObj,
+      "update"
+    );
+  }
+
+  static updateLsResult(replacementObj) {
+    return DbService.executeSqlQuery(
+      updateLsResult(replacementObj),
+      replacementObj,
+      "update"
+    );
+  }
+
+  static updateBlockResult(replacementObj) {
+    return DbService.executeSqlQuery(
+      updateBlockResult(replacementObj),
+      replacementObj,
+      "update"
+    );
   }
 
   static getPlanDetailOfRough(replacemenObj) {

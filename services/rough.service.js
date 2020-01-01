@@ -697,6 +697,7 @@ module.exports = class Rough {
   }
 
   static async updateLotHistory(req, res) {
+    const { id } = req.userDetail;
     const { labour, historyId: historyUuid } = req.body;
     // get labour history_id from history_id
     const getIdReplacement = {
@@ -711,7 +712,7 @@ module.exports = class Rough {
       history_id: historyId
     };
 
-    let labourInFloat = parseFloat(labour);
+    const labourInFloat = parseFloat(labour);
     let totalLabour = 0;
 
     let historyDetail = await DbService.getLotHistoryData(replacementObj);
@@ -754,34 +755,35 @@ module.exports = class Rough {
         for (let i = 0; i < stoneDetail.length; i++) {
           const currentData = stoneDetail[i];
           let weight = currentData.weight ? parseFloat(currentData.weight) : 0;
-          const unit = currentData.unit;
-          if (unit === 'carat') {
-            weight = weight * 100;
+          const { unit } = currentData;
+          if (unit === "carat") {
+            weight *= 100;
           }
-          totalWeight = totalWeight + weight;
+          totalWeight += weight;
         }
         totalLabour = (totalWeight * labourInFloat) / 100;
       }
-
     } else {
       const replacementObj = {
         lot_id: historyDetail.lot_id
-      }
+      };
       let lotData = await DbService.getLotData(replacementObj);
       lotData = lotData[0];
       let weight = lotData.weight ? parseFloat(lotData.weight) : 0;
-      const unit = lotData.unit;
-      if (unit === 'carat') {
-        weight = weight * 100;
+      const { unit } = lotData;
+      if (unit === "carat") {
+        weight *= 100;
       }
       totalLabour = (weight * labourInFloat) / 100;
       // if null
     }
-    let updateReplacement = {
+    const updateReplacement = {
       labour_rate: labourInFloat,
       total_labour: totalLabour,
-      id: historyId
-    }
+      history_id: historyId,
+      updated_at: new Date().toISOString(),
+      updated_by: id
+    };
     await DbService.updateLotHistory(updateReplacement);
     return Promise.resolve();
     // q = `select status from labour_history where id=labour_history_id`;
@@ -792,4 +794,42 @@ module.exports = class Rough {
     // q = `select * from lot_data where id=lot_id`;
     // calculate labour
   }
+
+  // static async updatePlanLsBlockResult(req, res) {
+  //   const { id } = req.userDetail;
+  //   const { detailData, status, historyId: historyUuid } = req.body;
+  //   // get labour history_id from history_id
+  //   const getIdReplacement = {
+  //     uuid: historyUuid
+  //   };
+  //   const historyIdDetail = await DbService.getIdFromUuid(
+  //     getIdReplacement,
+  //     "rough_history"
+  //   );
+  //   const historyId = historyIdDetail[0].id;
+  //   if (status === "ls") {
+  //     // const q = `update ls_result set is_active=false and is_deleted=true where history_id=:history_id`;
+  //     for (let i = 0; i < detailData.length; i += 1) {
+  //       const currentData = detailData[i];
+  //       // const r = {
+  //       //   uuid: currentData.planId
+  //       // };
+  //       // const planDetail = await DbService.getIdFromUuid(r, "plan_result");
+  //       // const planId = planDetail[0].id;
+  //       const obj = {
+  //         uuid: currentData.uuid,
+  //         stone_name: currentData.stoneName,
+  //         weight: currentData.weight,
+  //         unit: currentData.unit,
+  //         is_deleted: currentData.isDelete === true,
+  //         is_active: currentData.isDelete !== true,
+  //         updated_at: new Date().toISOString(),
+  //         updated_by: id
+  //       };
+  //       await DbService.updateLsResult(obj, "ls_result");
+  //     }
+  //   } else if (status === "planning") {
+  //   } else if (status === "block") {
+  //   }
+  // }
 };

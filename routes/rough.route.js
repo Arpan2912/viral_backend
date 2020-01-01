@@ -8,7 +8,7 @@ router.route(roughRoute.addRough).post(RoughController.addRough);
 router.route(roughRoute.addLotData).post(RoughController.addLotData);
 router.route(roughRoute.updateRough).post(RoughController.updateRough);
 router.route(roughRoute.updateLotData).post(RoughController.updateLotData);
-router.route(roughRoute.addRoughHistory).post(RoughController.addRoughHistory);updateLotHistory
+router.route(roughRoute.addRoughHistory).post(RoughController.addRoughHistory);
 router.route(roughRoute.getRough).get(RoughController.getRough);
 router.route(roughRoute.getLotHistory).get(RoughController.getLotHistory);
 router
@@ -26,8 +26,8 @@ router
 router.route(roughRoute.getLotStoneList).get(RoughController.getLotStoneList);
 router.route(roughRoute.getRoughList).get(RoughController.getRoughList);
 router.route(roughRoute.getLotList).get(RoughController.getLotList);
-router.route(roughRoute.updateLotHistory).post(RoughController.updateLotHistory);
-
-
+router
+  .route(roughRoute.updateLotHistory)
+  .post(RoughController.updateLotHistory);
 
 module.exports = router;

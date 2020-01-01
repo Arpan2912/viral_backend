@@ -235,26 +235,25 @@ module.exports = {
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
-
-  updateLotHistory: (replacement) => {
-    let q = `update  lot_history updated_at=:updated_at,updated_by=:updated_by`
+  updateLotHistory: replacement => {
+    let q = `update  lot_history set updated_at=:updated_at,updated_by=:updated_by`;
     if (replacement.end_date) {
-      q += `,end_date=:end_date`
+      q += `,end_date=:end_date`;
     }
     if (replacement.labour_rate) {
-      q += `,labour_rate=:labour_rate`
+      q += `,labour_rate=:labour_rate`;
     }
     if (replacement.total_labour) {
-      q += `,total_labour=:total_labour`
+      q += `,total_labour=:total_labour`;
     }
     if (replacement.labour_history_id) {
-      q += `,labour_history_id=:labour_history_id`
+      q += `,labour_history_id=:labour_history_id`;
     }
     if (replacement.dollar) {
-      q += `,dollar=:dollar`
+      q += `,dollar=:dollar`;
     }
     if (replacement.submitted_to_person_id) {
-      q += `,submitted_to_person_id=:submitted_to_person_id`
+      q += `,submitted_to_person_id=:submitted_to_person_id`;
     }
     q += ` where id=:history_id`;
     return q;
@@ -262,25 +261,85 @@ module.exports = {
     // labour_rate=:labour_rate,total_labour=:total_labour,labour_history_id=:labour_history_id,dollar=:dollar,
     // submitted_to_person_id=:submitted_to_person_id
     // where id=:history_id`
-  }
-  ,
+  },
   insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
       :uuid,:stone_name,:lot_id,:person_id,:weight,:unit,:history_id,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
+
+  updatePlanResult: replacement => {
+    let q = `update plan_result set updated_at=:updated_at,updated_by=:updated_by`;
+    if (replacement.stone_name) {
+      q += `,stone_name=:stone_name`;
+    }
+    if (replacement.weight) {
+      q += `,weight=:weight`;
+    }
+    if (replacement.unit) {
+      q += `,unit=:unit`;
+    }
+    if (replacement.hasOwnProperty("is_active")) {
+      q += `,is_active=:is_active`;
+    }
+    if (replacement.hasOwnProperty("is_deleted")) {
+      q += `,is_deleted=:is_deleted`;
+    }
+    q += `where uuid=:uuid`;
+    return q;
+  },
   insertLsResult: `insert into ls_result (u_uuid,lot_id,history_id,person_id,stone_name,weight,unit,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values(
       :uuid,:lot_id,:history_id,:person_id,:stone_name,:weight,:unit,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
+  updateLsResult: replacement => {
+    let q = `update ls_result set updated_at=:updated_at,updated_by=:updated_by`;
+    if (replacement.stone_name) {
+      q += `,stone_name=:stone_name`;
+    }
+    if (replacement.weight) {
+      q += `,weight=:weight`;
+    }
+    if (replacement.unit) {
+      q += `,unit=:unit`;
+    }
+    if (replacement.hasOwnProperty("is_active")) {
+      q += `,is_active=:is_active`;
+    }
+    if (replacement.hasOwnProperty("is_deleted")) {
+      q += `,is_deleted=:is_deleted`;
+    }
+    q += `where uuid=:uuid`;
+    return q;
+  },
   insertBlockResult: `insert into block_result (u_uuid,lot_id,history_id,person_id,stone_name,weight,unit,
       is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
       values(
         :uuid,:lot_id,:history_id,:person_id,:stone_name,:weight,:unit,
         :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
-      )`
+      )`,
+  updateBlockResult: replacement => {
+    let q = `update block_result set updated_at=:updated_at,updated_by=:updated_by`;
+    if (replacement.stone_name) {
+      q += `,stone_name=:stone_name`;
+    }
+    if (replacement.weight) {
+      q += `,weight=:weight`;
+    }
+    if (replacement.unit) {
+      q += `,unit=:unit`;
+    }
+    if (replacement.hasOwnProperty("is_active")) {
+      q += `,is_active=:is_active`;
+    }
+    if (replacement.hasOwnProperty("is_deleted")) {
+      q += `,is_deleted=:is_deleted`;
+    }
+    q += `where uuid=:uuid`;
+    return q;
+  }
   // insertRoughHistory: `insert into lot_history(uuid)`
 };
