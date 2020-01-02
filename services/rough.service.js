@@ -32,7 +32,7 @@ module.exports = class Rough {
       };
       const insertRoughResult = await DbService.insertRecordToDb(
         replacementObj,
-        "rough"
+        "roughs"
       );
       const roughId = insertRoughResult[0][0].id;
 

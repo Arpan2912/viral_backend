@@ -340,6 +340,12 @@ module.exports = {
     }
     q += `where uuid=:uuid`;
     return q;
-  }
+  },
+
+  insertActivityLog: `insert into activity_log 
+  (u_uuid,table_name,replacement,result,operation,created_at,updated_at,
+    created_by,updated_by)
+  values (:u_uuid,:table_name,:replacement,:result,:operation,
+    :created_at,:updated_at,:created_by,:updated_by)`
   // insertRoughHistory: `insert into lot_history(uuid)`
 };

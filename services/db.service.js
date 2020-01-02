@@ -1,4 +1,5 @@
 const Sequelize = require("sequelize");
+const uuidv4 = require("uuidv4");
 const db = require("../db");
 
 const {
@@ -45,11 +46,12 @@ const {
   getLotData,
   updateBlockResult,
   updateLsResult,
-  updatePlanResult
+  updatePlanResult,
+  insertActivityLog
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
-  static executeSqlQuery(query, replacements, operation) {
+  static executeSqlQuery(query, replacements, operation, tableName) {
     return new Promise((resolve, reject) => {
       let queryType;
       if (operation === "insert") {
@@ -66,9 +68,40 @@ module.exports = class DbService {
       db.sequelize
         .query(query, { replacements, type: queryType })
         .then(data => {
+          if (
+            ["insert", "update", "delete"].includes(operation) &&
+            tableName !== "activity_log"
+          ) {
+            const replacemenObj = {
+              u_uuid: uuidv4(),
+              replacement: JSON.stringify(replacements),
+              table_name: tableName,
+              result: JSON.stringify(data),
+              operation,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              created_by: replacements.updated_by
+                ? replacements.updated_by
+                : null,
+              updated_by: replacements.updated_by
+                ? replacements.updated_by
+                : null
+            };
+            try {
+              DbService.executeSqlQuery(
+                insertActivityLog,
+                replacemenObj,
+                "insert",
+                "activity_log"
+              );
+            } catch (e) {
+              console.error("e", e);
+            }
+          }
           return resolve(data);
         })
         .catch(err => {
+          console.error("err", err);
           return reject(err);
         });
     });
@@ -78,7 +111,7 @@ module.exports = class DbService {
     let q = null;
     if (table === "person") {
       q = insertPerson;
-    } else if (table === "rough") {
+    } else if (table === "roughs") {
       q = insertRough;
     } else if (table === "lot_history") {
       q = insertLotHistory;
@@ -98,7 +131,7 @@ module.exports = class DbService {
     if (q === null) {
       return Promise.reject({ msg: "" });
     }
-    return DbService.executeSqlQuery(q, replacemenObj, "insert");
+    return DbService.executeSqlQuery(q, replacemenObj, "insert", table);
   }
 
   static getUserDetail(replacemenObj) {
@@ -109,7 +142,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updateLotHistory(replacemenObj),
       replacemenObj,
-      "update"
+      "update",
+      "lot_history"
     );
   }
 
@@ -121,7 +155,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updatePerson(replacemenObj),
       replacemenObj,
-      "update"
+      "update",
+      "person"
     );
   }
 
@@ -205,7 +240,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updateRough(replacemenObj),
       replacemenObj,
-      "update"
+      "update",
+      "roughs"
     );
   }
 
@@ -213,7 +249,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updateLotData(replacemenObj),
       replacemenObj,
-      "update"
+      "update",
+      "lot_data"
     );
   }
 
@@ -246,7 +283,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updatePlanResult(replacementObj),
       replacementObj,
-      "update"
+      "update",
+      "plan_result"
     );
   }
 
@@ -254,7 +292,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updateLsResult(replacementObj),
       replacementObj,
-      "update"
+      "update",
+      "ls_result"
     );
   }
 
@@ -262,7 +301,8 @@ module.exports = class DbService {
     return DbService.executeSqlQuery(
       updateBlockResult(replacementObj),
       replacementObj,
-      "update"
+      "update",
+      "block_result"
     );
   }
 
