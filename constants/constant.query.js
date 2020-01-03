@@ -47,11 +47,12 @@ module.exports = {
     select r.u_uuid as rough_id,r.dollar,
     l.u_uuid as lot_id,l.lot_name,r.rough_name,r.weight,r.unit,l.weight as lot_weight,l.unit as lot_unit,
     (case when :user_type='admin' then r.price else null end) as price,status,start_date,end_date,submitted_to_person_id,
-    p.first_name,p.last_name,p.u_uuid as person_id
+    p.first_name,p.last_name, s.first_name as submitted_first_name,s.last_name as submitted_last_name,p.u_uuid as person_id
     from 
     lot_history as h 
     inner join last_status as ls on ls.max=h.id 
     inner join persons as  p on p.id = h.person_id
+    left join persons as  s on s.id = h.submitted_to_person_id
     right join lot_data as l on h.lot_id=l.id
     inner join roughs as r on r.id=l.rough_id 
     where (case when :is_search then upper(r.rough_name) like upper(:search) else true end)  offset :offset limit :limit
@@ -80,9 +81,11 @@ module.exports = {
     select * from all_data`,
   getLotHistory: `select l.lot_name,r.rough_name,h.id,l.u_uuid as lot_id,h.labour_rate,h.dollar,h.total_labour,
     r.u_uuid as rough_id,
-    h.u_uuid as history_id,first_name,last_name,status,start_date,end_date 
+    h.u_uuid as history_id,p.first_name,p.last_name,s.first_name as submitted_first_name,s.last_name as submitted_last_name,
+    status,start_date,end_date 
     from lot_history as h 
     inner join persons p on h.person_id=p.id
+    left join persons s on h.submitted_to_person_id=s.id
     inner join lot_data l on l.id=h.lot_id
     inner join roughs as r on r.id=l.rough_id
     where lot_id=:lot_id order by h.id desc`,
