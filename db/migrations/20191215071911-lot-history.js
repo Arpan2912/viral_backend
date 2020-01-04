@@ -43,6 +43,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      total_weight: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       start_date: {
         type: Sequelize.DATE,
         allowNull: true

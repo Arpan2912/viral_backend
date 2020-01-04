@@ -79,7 +79,7 @@ module.exports = {
       where l.id=:lot_id
     )
     select * from all_data`,
-  getLotHistory: `select l.lot_name,r.rough_name,h.id,l.u_uuid as lot_id,h.labour_rate,h.dollar,h.total_labour,
+  getLotHistory: `select l.lot_name,r.rough_name,h.id,l.u_uuid as lot_id,h.labour_rate,h.dollar,h.total_labour,h.total_weight,
     r.u_uuid as rough_id,
     h.u_uuid as history_id,p.first_name,p.last_name,s.first_name as submitted_first_name,s.last_name as submitted_last_name,
     status,start_date,end_date 
@@ -90,7 +90,7 @@ module.exports = {
     inner join roughs as r on r.id=l.rough_id
     where lot_id=:lot_id order by h.id desc`,
 
-  getLotTotalLabourForLot: `select sum(total_labour::integer) from lot_history where lot_id=:lot_id`,
+  getLotTotalLabourForLot: `select sum(total_labour::integer) as total_labour,sum(total_weight::integer) as total_weight from lot_history where lot_id=:lot_id`,
 
   getRoughDetail: `select r.id,r.u_uuid as rough_id,rough_name,weight,unit,status from roughs as r left join lot_history as h  on r.id=h.rough_id
   where r.rough_id=:rough_id
@@ -248,6 +248,9 @@ module.exports = {
     }
     if (replacement.total_labour) {
       q += `,total_labour=:total_labour`;
+    }
+    if (replacement.total_weight) {
+      q += `,total_weight=:total_weight`;
     }
     if (replacement.labour_history_id) {
       q += `,labour_history_id=:labour_history_id`;

@@ -312,8 +312,12 @@ module.exports = class Rough {
       };
       console.log(replacementObj);
       const lotHistory = await DbService.getLotHistory(replacementObj);
-      let totalLotLabour = await DbService.getTotalLabourForLot(replacementObj);
-      totalLotLabour = totalLotLabour[0].sum;
+      const totalLotLabour = await DbService.getTotalLabourForLot(
+        replacementObj
+      );
+      console.log("totalLotLabour", totalLotLabour);
+      const totalLotWeight = totalLotLabour[0].total_weight;
+      const totalLotLabourValue = totalLotLabour[0].total_labour;
       for (let i = 0; i < lotHistory.length; i += 1) {
         const currentData = lotHistory[i];
         const obj = {
@@ -352,8 +356,15 @@ module.exports = class Rough {
           currentData.detailData = blockData;
         }
       }
+      console.log(
+        "totalLotLabour",
+        totalLotLabourValue,
+        "totalWeight",
+        totalLotWeight
+      );
       const responseObj = {
-        totalLabour: totalLotLabour,
+        totalLabour: totalLotLabourValue,
+        totalWeight: totalLotWeight,
         roughs: lotHistory
       };
       return Promise.resolve(responseObj);
@@ -442,6 +453,7 @@ module.exports = class Rough {
       personId: personUuid,
       labourRate = null,
       totalLabour = null,
+      totalWeight = null,
       labourHistoryId: labourHistoryUuid = null,
       dollar = null
     } = req.body;
@@ -547,6 +559,7 @@ module.exports = class Rough {
         const updateReplacement = {
           labour_rate: labourRate,
           total_labour: totalLabour,
+          total_weight: totalWeight,
           dollar,
           labour_history_id: labourHistoryId,
           submitted_to_person_id: personId,
@@ -587,6 +600,7 @@ module.exports = class Rough {
         const updateReplacement = {
           labour_rate: labourRate,
           total_labour: totalLabour,
+          total_weight: totalWeight,
           dollar,
           labour_history_id: labourHistoryId,
           submitted_to_person_id: personId,
@@ -714,7 +728,7 @@ module.exports = class Rough {
 
     const labourInFloat = parseFloat(labour);
     let totalLabour = 0;
-
+    let totalWeightValue = 0;
     let historyDetail = await DbService.getLotHistoryData(replacementObj);
     historyDetail = historyDetail[0];
     // check if it is null or not
@@ -740,11 +754,11 @@ module.exports = class Rough {
         stoneDetail = await DbService.getPlanDetailOfRoughForHistoryId(
           replacementStoneObj
         );
-      } else if (status === "ls") {
+      } else if (historyStatusDetail.status === "ls") {
         stoneDetail = await DbService.getLsDetailOfRoughForHistoryId(
           replacementStoneObj
         );
-      } else if (status === "block") {
+      } else if (historyStatusDetail.status === "block") {
         stoneDetail = await DbService.getBlockDetailOfRoughForHistoryId(
           replacementStoneObj
         );
@@ -752,7 +766,7 @@ module.exports = class Rough {
 
       if (stoneDetail.length > 0) {
         let totalWeight = 0;
-        for (let i = 0; i < stoneDetail.length; i++) {
+        for (let i = 0; i < stoneDetail.length; i += 1) {
           const currentData = stoneDetail[i];
           let weight = currentData.weight ? parseFloat(currentData.weight) : 0;
           const { unit } = currentData;
@@ -762,6 +776,7 @@ module.exports = class Rough {
           totalWeight += weight;
         }
         totalLabour = (totalWeight * labourInFloat) / 100;
+        totalWeightValue = totalWeight;
       }
     } else {
       const replacementObj = {
@@ -774,12 +789,14 @@ module.exports = class Rough {
       if (unit === "carat") {
         weight *= 100;
       }
+      totalWeightValue = weight;
       totalLabour = (weight * labourInFloat) / 100;
       // if null
     }
     const updateReplacement = {
       labour_rate: labourInFloat,
       total_labour: totalLabour,
+      total_weight: totalWeightValue,
       history_id: historyId,
       updated_at: new Date().toISOString(),
       updated_by: id
