@@ -17,6 +17,7 @@ module.exports = class AppMiddleware {
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
     app.use(express.static(path.join(`${__dirname}/..`, "public")));
+    app.use(express.static(path.join(`${__dirname}/..`, "views")));
     app.use(expressValidator());
 
     return app;
