@@ -12,19 +12,44 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-
     return queryInterface.bulkInsert(
-      "roughs",
+      "lot_data",
       [
         {
           id: 1,
           u_uuid: uuidv4(),
-          rough_name: "1",
-          price: "50",
+          lot_name: "1",
+          rough_id: 1,
           weight: "1",
           unit: "carat",
-          dollar: "70",
-          purchase_date: new Date().toISOString(),
+          is_active: true,
+          is_deleted: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: 1,
+          updated_by: 1
+        },
+        {
+          id: 2,
+          u_uuid: uuidv4(),
+          lot_name: "2",
+          rough_id: 1,
+          weight: "1",
+          unit: "carat",
+          is_active: true,
+          is_deleted: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: 1,
+          updated_by: 1
+        },
+        {
+          id: 3,
+          u_uuid: uuidv4(),
+          lot_name: "3",
+          rough_id: 1,
+          weight: "1",
+          unit: "carat",
           is_active: true,
           is_deleted: false,
           created_at: new Date().toISOString(),

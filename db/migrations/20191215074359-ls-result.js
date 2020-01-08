@@ -19,10 +19,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      person_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
       stone_name: {
         type: Sequelize.STRING,
         allowNull: false

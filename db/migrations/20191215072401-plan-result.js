@@ -23,10 +23,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      person_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
       weight: {
         type: Sequelize.STRING,
         allowNull: false

@@ -27,10 +27,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      labour_history_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-      },
       dollar: {
         type: Sequelize.INTEGER,
         allowNull: true

@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("block_result", {
+    return queryInterface.createTable("stone_history", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,24 +11,16 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID
       },
-      lot_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
       history_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      stone_name: {
-        type: Sequelize.STRING,
+      lot_id: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      weight: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      unit: {
-        type: Sequelize.STRING,
+      stone_id: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
       is_active: {
@@ -70,7 +62,7 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("block_result");
+    return queryInterface.dropTable("stone_history");
 
     /*
       Add reverting commands here.

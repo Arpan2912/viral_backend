@@ -21,7 +21,7 @@ module.exports = {
       },
       dollar: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       weight: {
         type: Sequelize.STRING,
