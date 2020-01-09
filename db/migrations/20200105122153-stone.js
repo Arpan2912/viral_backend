@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      process: {
+      status: {
         type: Sequelize.STRING,
         allowNull: true
       },

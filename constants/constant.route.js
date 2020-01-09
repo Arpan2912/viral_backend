@@ -19,9 +19,11 @@ module.exports = {
     getLsDetailOfRough: "/get-ls-detail",
     getBlockDetailOfRough: "/get-block-detail",
     addRoughHistory: "/add-rough-history",
+    updateRoughHistory: "/update-rough-history",
     getRoughList: "/get-rough-list",
     getLotList: "/get-lot-list",
     getLotStoneList: "/get-lot-stone-list",
-    updateLotHistory:"/update-lot-history"
+    updateLotHistory: "/update-lot-history",
+    getStoneList: "/get-stone-list"
   }
 };

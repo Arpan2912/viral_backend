@@ -187,12 +187,39 @@ module.exports = class RoughController {
     }
   }
 
+  static async updateRoughHistory(req, res) {
+    try {
+      await RoughService.addRoughHistory(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "add rough history successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
   static async updateLotHistory(req, res) {
     try {
       await RoughService.updateLotHistory(req, res);
       const responseObj = CommonService.prepareSuccessResponse(
         "Rough history updated successfully",
         null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async getStoneList(req, res) {
+    try {
+      const stoneList = await RoughService.getStoneList(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get stone list",
+        stoneList
       );
       return res.status(200).send(responseObj);
     } catch (e) {

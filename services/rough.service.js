@@ -446,6 +446,252 @@ module.exports = class Rough {
   }
 
   static async addRoughHistory(req, res) {
+    const { id } = req.userDetail;
+    const {
+      stoneToProcess,
+      lotId: lotUuid,
+      personId: personUuid,
+      status
+    } = req.body;
+
+    try {
+      if (!lotUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      if (!personUuid) {
+        throw { code: 409, msg: "Please select person" };
+      }
+
+      const getIdReplacement = {
+        uuid: lotUuid
+      };
+      const lotDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "lot_data"
+      );
+      const lotId = lotDetail[0].id;
+      const getPersonIdReplacement = {
+        uuid: personUuid
+      };
+      const personDetail = await DbService.getIdFromUuid(
+        getPersonIdReplacement,
+        "person"
+      );
+
+      const personId = personDetail[0].id;
+
+      const obj = {
+        lot_id: lotId,
+        uuid: uuidv4(),
+        status,
+        person_id: personId,
+        start_date: new Date().toISOString(),
+        is_active: true,
+        is_deleted: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: id,
+        updated_by: id
+      };
+      let historyId = await DbService.insertRecordToDb(obj, "lot_history");
+      historyId = historyId[0].id;
+
+      // :uuid,:history_id,:lot_id,
+      // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
+      if (stoneToProcess && stoneToProcess.length > 0) {
+        for (let i = 0; i < stoneToProcess.length; i++) {
+          const currentData = stoneToProcess[i];
+          const stoneProcessObj = {
+            uuid: uuidv4(),
+            history_id: historyId,
+            lot_id: lotId,
+            stone_name: currentData.stoneName,
+            weight: currentData.weight,
+            unit: currentData.unit,
+            created_by: id,
+            updated_by: id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          await DbService.insertRecordToDb(
+            stoneProcessObj,
+            "stone_to_process"
+          );
+          const stoneObj = {
+            stone_name: currentData.stoneName
+          };
+          const stoneData = await DbService.getStoneId(stoneObj);
+          const stoneId = stoneData[0].id;
+          const replacementObj = {
+            uuid: uuidv4(),
+            history_id: historyId,
+            lot_id: lotId,
+            stone_id: stoneId,
+            created_by: id,
+            updated_by: id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          await DbService.insertRecordToDb(replacementObj, "stone_history");
+        }
+        return Promise.resolve();
+      }
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  static async updateRoughHistory(req, res) {
+    const { id } = req.userDetail;
+    const {
+      detailData,
+      lotId: lotUuid,
+      status,
+      historyId: historyUuid,
+      personId: personUuid,
+      labourRate = null,
+      // totalLabour = null,
+      // totalWeight = null,
+      dollar = null
+    } = req.body;
+    let totalLabour = 0;
+    let totalWeight = 0;
+    try {
+      if (!historyUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      if (!lotUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      if (!personUuid) {
+        throw { code: 409, msg: "Please select person" };
+      }
+
+      const getHistoryIdReplacement = {
+        uuid: historyUuid
+      };
+      const lotHistory = await DbService.getIdFromUuid(
+        getHistoryIdReplacement,
+        "rough_history"
+      );
+      console.log("lotHistory", lotHistory);
+      const historyId = lotHistory[0].id;
+
+      const getIdReplacement = {
+        uuid: lotUuid
+      };
+      const lotDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "lot_data"
+      );
+      const lotId = lotDetail[0].id;
+      const roughId = lotDetail[0].rough_id;
+      const getPersonIdReplacement = {
+        uuid: personUuid
+      };
+      const personDetail = await DbService.getIdFromUuid(
+        getPersonIdReplacement,
+        "person"
+      );
+
+      const personId = personDetail[0].id;
+
+      const replacementObj = {
+        history_id: historyId
+      };
+      const stoneToProcessData = await DbService.getStoneToProcessData(
+        replacementObj
+      );
+      if (stoneToProcessData && stoneToProcessData.length > 0) {
+        for (let i = 0; i < stoneToProcessData.length; i++) {
+          const currentData = stoneToProcessData[i];
+          if (currentData.unit === "carat") {
+            const weight = currentData.weight * 100;
+            totalWeight += weight;
+          } else {
+            totalWeight += currentData.weight;
+          }
+        }
+        totalLabour = (totalLabour * totalWeight) / 100;
+      } else {
+        const replacementObj = {
+          lot_id: lotId
+        };
+        let lotData = await DbService.getLotData(replacementObj);
+        lotData = lotData[0];
+        totalWeight = lotData.weight;
+        if (lotData.unit === "carat") {
+          totalWeight *= 100;
+        }
+        totalLabour = (totalLabour * totalWeight) / 100;
+      }
+      const obj = {
+        labour_rate: labourRate,
+        total_labour: totalLabour,
+        total_weight: totalWeight,
+        dollar,
+        submitted_to_person_id: personId,
+        end_date: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        updated_by: id,
+        history_id: historyId
+      };
+      await DbService.updateLotHistory(obj);
+
+      // :uuid,:history_id,:lot_id,
+      // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
+      if (detailData && detailData.length > 0) {
+        for (let i = 0; i < detailData.length; i++) {
+          const currentData = detailData[i];
+          const resultObj = {
+            uuid: uuidv4(),
+            history_id: historyId,
+            lot_id: lotId,
+            stone_name: currentData.stoneName,
+            person_id: personId,
+            weight: currentData.weight,
+            unit: currentData.unit,
+            is_deleted: false,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            created_by: id,
+            updated_by: id
+          };
+          if (status === "planning") {
+            await DbService.insertRecordToDb(resultObj, "plan_result");
+          } else if (status === "ls") {
+            await DbService.insertRecordToDb(resultObj, "ls_result");
+            const lsObj = {
+              uuid: uuidv4(),
+              rough_id: roughId,
+              lot_id: lotId,
+              stone_name: currentData.stoneName,
+              weight: currentData.weight,
+              unit: currentData.unit,
+              status: 'ls',
+              have_child: false,
+              parent_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              created_by: id,
+              updated_by: id
+            }
+            await DbService.insertRecordToDb(lsObj, "stones")
+          } else if (status === "block") {
+            await DbService.insertRecordToDb(resultObj, "block_result");
+          }
+        }
+        return Promise.resolve();
+      }
+    } catch (e) {
+      "ls") {
+        Promise.reject(e);
+      }
+    }
+
+  static async addRoughHistoryOld(req, res) {
     const {
       status,
       detailData,
@@ -812,41 +1058,24 @@ module.exports = class Rough {
     // calculate labour
   }
 
-  // static async updatePlanLsBlockResult(req, res) {
-  //   const { id } = req.userDetail;
-  //   const { detailData, status, historyId: historyUuid } = req.body;
-  //   // get labour history_id from history_id
-  //   const getIdReplacement = {
-  //     uuid: historyUuid
-  //   };
-  //   const historyIdDetail = await DbService.getIdFromUuid(
-  //     getIdReplacement,
-  //     "rough_history"
-  //   );
-  //   const historyId = historyIdDetail[0].id;
-  //   if (status === "ls") {
-  //     // const q = `update ls_result set is_active=false and is_deleted=true where history_id=:history_id`;
-  //     for (let i = 0; i < detailData.length; i += 1) {
-  //       const currentData = detailData[i];
-  //       // const r = {
-  //       //   uuid: currentData.planId
-  //       // };
-  //       // const planDetail = await DbService.getIdFromUuid(r, "plan_result");
-  //       // const planId = planDetail[0].id;
-  //       const obj = {
-  //         uuid: currentData.uuid,
-  //         stone_name: currentData.stoneName,
-  //         weight: currentData.weight,
-  //         unit: currentData.unit,
-  //         is_deleted: currentData.isDelete === true,
-  //         is_active: currentData.isDelete !== true,
-  //         updated_at: new Date().toISOString(),
-  //         updated_by: id
-  //       };
-  //       await DbService.updateLsResult(obj, "ls_result");
-  //     }
-  //   } else if (status === "planning") {
-  //   } else if (status === "block") {
-  //   }
-  // }
+  static async getStoneList(req, res) {
+    const { u: lotUuid = null } = req.query;
+    if (!lotUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+    const lotId = lotDetail[0].id;
+    const replacementObj = {
+      lot_id: lotId
+    };
+    const stoneList = await DbService.getStoneList(replacementObj);
+    return Promise.resolve(stoneList);
+  }
 };

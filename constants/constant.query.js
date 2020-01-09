@@ -7,7 +7,7 @@ module.exports = {
     :phone,:password,:user_type,:created_at,:updated_at)`,
   getUserDetail: `select * from users where phone=:phone`,
   getRoughIdFromUuid: `select id from roughs where u_uuid=:uuid`,
-  getLotIdFromUuid: `select id from lot_data where u_uuid=:uuid`,
+  getLotIdFromUuid: `select id,rough_id from lot_data where u_uuid=:uuid`,
   getRoughHistoryIdFromUuid: `select id from lot_history where u_uuid=:uuid`,
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
@@ -236,7 +236,7 @@ module.exports = {
     values (
       :uuid,:lot_id,:status,:person_id,:start_date,:end_date,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
-    )`,
+    ) returning id`,
 
   updateLotHistory: replacement => {
     let q = `update  lot_history set updated_at=:updated_at,updated_by=:updated_by`;
@@ -347,6 +347,33 @@ module.exports = {
     q += `where uuid=:uuid`;
     return q;
   },
+
+  insertStoneToProcess: `insert into stone_to_process (u_uuid,history_id,lot_id,
+    stone_name,weight,unit,created_by,updated_by,created_at,updated_at)
+    values (:uuid,:history_id,:lot_id,
+      :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at)
+    `,
+
+  insertStone: `insert into stones (u_uuid,rough_id,lot_id,
+    stone_name,weight,unit,status,have_child,parent_id,
+    created_by,updated_by,created_at,updated_at)
+    values
+    (:uuid,:rough_id,:lot_id,
+      :stone_name,:weight,:unit,:status,:have_child,:parent_id,
+      :created_by,:updated_by,:created_at,:updated_at)
+    )`,
+
+  getStoneId: `select * from stones where stone_name=:stone_name`,
+
+  getStoneList: `select stone_name,weight,unit from stones where lot_id=:lot_id and have_child is not true`,
+  getStoneToProcessData: `select * from stone_to_process where history_id=:history_id 
+  and is_active=true and is_deleted=false`,
+
+  insertStoneHistory: `insert into stone_history (u_uuid,history_id,lot_id,stone_id,
+    created_by,updated_by,created_at,updated_at)
+    values (:uuid,:history_id,:lot_id,:stone_id,
+      :created_by,:updated_by,:created_at,:updated_at)
+    `,
 
   insertActivityLog: `insert into activity_log 
   (u_uuid,table_name,replacement,result,operation,created_at,updated_at,

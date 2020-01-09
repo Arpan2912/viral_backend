@@ -47,7 +47,13 @@ const {
   updateBlockResult,
   updateLsResult,
   updatePlanResult,
-  insertActivityLog
+  insertActivityLog,
+  insertStoneHistory,
+  insertStoneToProcess,
+  getStoneId,
+  getStoneToProcessData,
+  getStoneList,
+  insertStone
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -125,6 +131,12 @@ module.exports = class DbService {
       q = insertLotData;
     } else if (table === "user") {
       q = createUser;
+    } else if (table === "stone_history") {
+      q = insertStoneHistory;
+    } else if (table === "stone_to_process") {
+      q = insertStoneToProcess;
+    } else if (table === "stones") {
+      q = insertStone;
     } else {
       return Promise.reject({ msg: "" });
     }
@@ -376,5 +388,21 @@ module.exports = class DbService {
       replacemenObj,
       "select"
     );
+  }
+
+  static getStoneId(replacemenObj) {
+    return DbService.executeSqlQuery(getStoneId, replacemenObj, "select");
+  }
+
+  static getStoneToProcessData(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getStoneToProcessData,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getStoneList(replacemenObj) {
+    return DbService.executeSqlQuery(getStoneList, replacemenObj, "select");
   }
 };
