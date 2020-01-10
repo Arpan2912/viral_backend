@@ -324,6 +324,9 @@ module.exports = class Rough {
           history_id: currentData.id,
           lot_id: lotId
         };
+
+        const stoneToProcessData = await DbService.getStoneToProcessData(obj);
+        currentData.stoneToProcessData = stoneToProcessData;
         if (
           currentData.status === "planning" &&
           currentData.start_date &&
@@ -494,8 +497,8 @@ module.exports = class Rough {
         updated_by: id
       };
       let historyId = await DbService.insertRecordToDb(obj, "lot_history");
-      historyId = historyId[0].id;
-
+      console.log("historyId", historyId);
+      historyId = historyId[0][0].id;
       // :uuid,:history_id,:lot_id,
       // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
       if (stoneToProcess && stoneToProcess.length > 0) {
@@ -513,10 +516,7 @@ module.exports = class Rough {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           };
-          await DbService.insertRecordToDb(
-            stoneProcessObj,
-            "stone_to_process"
-          );
+          await DbService.insertRecordToDb(stoneProcessObj, "stone_to_process");
           const stoneObj = {
             stone_name: currentData.stoneName
           };
@@ -607,24 +607,24 @@ module.exports = class Rough {
         for (let i = 0; i < stoneToProcessData.length; i++) {
           const currentData = stoneToProcessData[i];
           if (currentData.unit === "carat") {
-            const weight = currentData.weight * 100;
+            const weight = parseFloat(currentData.weight) * 100;
             totalWeight += weight;
           } else {
             totalWeight += currentData.weight;
           }
         }
-        totalLabour = (totalLabour * totalWeight) / 100;
+        totalLabour = (labourRate * totalWeight) / 100;
       } else {
         const replacementObj = {
           lot_id: lotId
         };
         let lotData = await DbService.getLotData(replacementObj);
         lotData = lotData[0];
-        totalWeight = lotData.weight;
+        totalWeight = parseFloat(lotData.weight);
         if (lotData.unit === "carat") {
           totalWeight *= 100;
         }
-        totalLabour = (totalLabour * totalWeight) / 100;
+        totalLabour = (labourRate * totalWeight) / 100;
       }
       const obj = {
         labour_rate: labourRate,
@@ -670,15 +670,15 @@ module.exports = class Rough {
               stone_name: currentData.stoneName,
               weight: currentData.weight,
               unit: currentData.unit,
-              status: 'ls',
+              status: "ls",
               have_child: false,
               parent_id: null,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               created_by: id,
               updated_by: id
-            }
-            await DbService.insertRecordToDb(lsObj, "stones")
+            };
+            await DbService.insertRecordToDb(lsObj, "stones");
           } else if (status === "block") {
             await DbService.insertRecordToDb(resultObj, "block_result");
           }
@@ -686,10 +686,9 @@ module.exports = class Rough {
         return Promise.resolve();
       }
     } catch (e) {
-      "ls") {
-        Promise.reject(e);
-      }
+      Promise.reject(e);
     }
+  }
 
   static async addRoughHistoryOld(req, res) {
     const {

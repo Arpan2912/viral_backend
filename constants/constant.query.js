@@ -231,10 +231,10 @@ module.exports = {
     return q;
   },
 
-  insertLotHistory: `insert into lot_history (u_uuid,lot_id,status,person_id,start_date,end_date,
+  insertLotHistory: `insert into lot_history (u_uuid,lot_id,status,person_id,start_date,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
-      :uuid,:lot_id,:status,:person_id,:start_date,:end_date,
+      :uuid,:lot_id,:status,:person_id,:start_date,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     ) returning id`,
 
@@ -268,10 +268,10 @@ module.exports = {
     // submitted_to_person_id=:submitted_to_person_id
     // where id=:history_id`
   },
-  insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,person_id,weight,unit,history_id,
+  insertPlanResult: `insert into plan_result  (u_uuid, stone_name,lot_id,weight,unit,history_id,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values (
-      :uuid,:stone_name,:lot_id,:person_id,:weight,:unit,:history_id,
+      :uuid,:stone_name,:lot_id,:weight,:unit,:history_id,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
 
@@ -295,10 +295,10 @@ module.exports = {
     q += `where uuid=:uuid`;
     return q;
   },
-  insertLsResult: `insert into ls_result (u_uuid,lot_id,history_id,person_id,stone_name,weight,unit,
+  insertLsResult: `insert into ls_result (u_uuid,lot_id,history_id,stone_name,weight,unit,
     is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
     values(
-      :uuid,:lot_id,:history_id,:person_id,:stone_name,:weight,:unit,
+      :uuid,:lot_id,:history_id,:stone_name,:weight,:unit,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
     )`,
   updateLsResult: replacement => {
@@ -321,10 +321,10 @@ module.exports = {
     q += `where uuid=:uuid`;
     return q;
   },
-  insertBlockResult: `insert into block_result (u_uuid,lot_id,history_id,person_id,stone_name,weight,unit,
+  insertBlockResult: `insert into block_result (u_uuid,lot_id,history_id,stone_name,weight,unit,
       is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
       values(
-        :uuid,:lot_id,:history_id,:person_id,:stone_name,:weight,:unit,
+        :uuid,:lot_id,:history_id,:stone_name,:weight,:unit,
         :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
       )`,
   updateBlockResult: replacement => {
@@ -361,7 +361,7 @@ module.exports = {
     (:uuid,:rough_id,:lot_id,
       :stone_name,:weight,:unit,:status,:have_child,:parent_id,
       :created_by,:updated_by,:created_at,:updated_at)
-    )`,
+    `,
 
   getStoneId: `select * from stones where stone_name=:stone_name`,
 

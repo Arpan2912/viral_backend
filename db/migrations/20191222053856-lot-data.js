@@ -30,7 +30,7 @@ module.exports = {
       is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: true
       },
       is_deleted: {
         type: Sequelize.BOOLEAN,
@@ -39,11 +39,11 @@ module.exports = {
       },
       created_by: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       updated_by: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       created_at: {
         type: Sequelize.DATE,

@@ -189,7 +189,7 @@ module.exports = class RoughController {
 
   static async updateRoughHistory(req, res) {
     try {
-      await RoughService.addRoughHistory(req, res);
+      await RoughService.updateRoughHistory(req, res);
       const responseObj = CommonService.prepareSuccessResponse(
         "add rough history successfully",
         null
