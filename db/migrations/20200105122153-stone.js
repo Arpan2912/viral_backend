@@ -31,6 +31,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      cut: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      shape: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      color: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      purity: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       status: {
         type: Sequelize.STRING,
         allowNull: true

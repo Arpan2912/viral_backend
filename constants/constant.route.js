@@ -14,7 +14,9 @@ module.exports = {
     updateRough: "/update-rough",
     updateLotData: "/update-lot-data",
     getRough: "/get-rough",
+    getStoneLastStatus: "/get-stone-last-status",
     getLotHistory: "/get-lot-history",
+    getStoneHistory: "/get-stone-history",
     getPlanDetailOfRough: "/get-plan-detail",
     getLsDetailOfRough: "/get-ls-detail",
     getBlockDetailOfRough: "/get-block-detail",
@@ -24,6 +26,8 @@ module.exports = {
     getLotList: "/get-lot-list",
     getLotStoneList: "/get-lot-stone-list",
     updateLotHistory: "/update-lot-history",
-    getStoneList: "/get-stone-list"
+    getStoneList: "/get-stone-list",
+    updateStoneToProcess: "/update-stone-to-process",
+    updateStatusEndResult: "/update-status-result"
   }
 };

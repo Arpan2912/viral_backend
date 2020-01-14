@@ -53,7 +53,14 @@ const {
   getStoneId,
   getStoneToProcessData,
   getStoneList,
-  insertStone
+  insertStone,
+  getStoneHistory,
+  qGetStoneCurrentStatus,
+  qGetTotalStoneCount,
+  getStoneIdFromUuid,
+  updateStoneToProcess,
+  getLastHistoryIdToUpdateStone,
+  updateStones
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -196,6 +203,14 @@ module.exports = class DbService {
     );
   }
 
+  static getTotalStoneCount(replacementObj) {
+    return DbService.executeSqlQuery(
+      qGetTotalStoneCount,
+      replacementObj,
+      "select"
+    );
+  }
+
   static getTotalLabourForLot(replacementObj) {
     return DbService.executeSqlQuery(
       getLotTotalLabourForLot,
@@ -233,12 +248,14 @@ module.exports = class DbService {
       q = getPersonIdFromUuid;
     } else if (table === "rough") {
       q = getRoughIdFromUuid;
-    } else if (table === "rough_history") {
+    } else if (table === "lot_history") {
       q = getRoughHistoryIdFromUuid;
     } else if (table === "plan_result") {
       q = getPlanResultIdFromUuid;
     } else if (table === "lot_data") {
       q = getLotIdFromUuid;
+    } else if (table === "stones") {
+      q = getStoneIdFromUuid;
     } else {
       return Promise.reject({ msg: "" });
     }
@@ -275,6 +292,15 @@ module.exports = class DbService {
     );
   }
 
+  static getStoneCurrentStatus(replacemenObj) {
+    console.log("replacemenObj", replacemenObj);
+    return DbService.executeSqlQuery(
+      qGetStoneCurrentStatus,
+      replacemenObj,
+      "select"
+    );
+  }
+
   static getRoughCurrentStatusByRoughId(replacemenObj) {
     return DbService.executeSqlQuery(
       qGetRoughCurrentStatusByRoughId,
@@ -285,6 +311,10 @@ module.exports = class DbService {
 
   static getLotHistory(replacemenObj) {
     return DbService.executeSqlQuery(getLotHistory, replacemenObj, "select");
+  }
+
+  static getStoneHistory(replacemenObj) {
+    return DbService.executeSqlQuery(getStoneHistory, replacemenObj, "select");
   }
 
   static getRoughDetail(replacemenObj) {
@@ -404,5 +434,31 @@ module.exports = class DbService {
 
   static getStoneList(replacemenObj) {
     return DbService.executeSqlQuery(getStoneList, replacemenObj, "select");
+  }
+
+  static updateStoneToProcess(replacemenObj) {
+    return DbService.executeSqlQuery(
+      updateStoneToProcess(replacemenObj),
+      replacemenObj,
+      "update",
+      "stone_to_process"
+    );
+  }
+
+  static updateStone(replacemenObj) {
+    return DbService.executeSqlQuery(
+      updateStones(replacemenObj),
+      replacemenObj,
+      "update",
+      "stones"
+    );
+  }
+
+  static getLastHistoryIdToUpdateStone(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getLastHistoryIdToUpdateStone,
+      replacemenObj,
+      "select"
+    );
   }
 };

@@ -31,6 +31,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      cut: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      shape: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      color: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      purity: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -376,6 +376,125 @@ module.exports = class Rough {
     }
   }
 
+  static async getStoneLastStatus(req, res) {
+    try {
+      const { user_type } = req.userDetail;
+      let { page = "1", limit = "10", search } = req.query;
+      page = parseInt(page);
+      if (page === "NaN") {
+        page = 1;
+      }
+      limit = parseInt(limit);
+      if (limit === "NaN") {
+        limit = 1;
+      }
+      const offset = (page - 1) * limit;
+      const replacementObj = {
+        offset,
+        limit,
+        search:
+          search === "" || search === undefined || search === null
+            ? null
+            : `%${search}%`,
+        is_search: !(search === "" || search === undefined || search === null),
+        user_type
+      };
+      const roughs = await DbService.getStoneCurrentStatus(replacementObj);
+      const countObj = await DbService.getTotalStoneCount(replacementObj);
+      console.log("countObj", countObj);
+      const responseObj = {
+        roughs,
+        count: countObj[0].count
+      };
+      return Promise.resolve(responseObj);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  static async getStoneHistory(req, res) {
+    try {
+      const { stone_id: stoneUuid = null } = req.query;
+      if (!stoneUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      const getIdReplacement = {
+        uuid: stoneUuid
+      };
+      const stoneDetail = await DbService.getIdFromUuid(
+        getIdReplacement,
+        "stones"
+      );
+      const stoneId = stoneDetail[0].id;
+      const replacementObj = {
+        stone_id: stoneId
+      };
+      console.log(replacementObj);
+      const stoneHistory = await DbService.getStoneHistory(replacementObj);
+      // const totalLotLabour = await DbService.getTotalLabourForLot(
+      //   replacementObj
+      // );
+      // console.log("totalLotLabour", totalLotLabour);
+      // const totalLotWeight = totalLotLabour[0].total_weight;
+      // const totalLotLabourValue = totalLotLabour[0].total_labour;
+      // for (let i = 0; i < lotHistory.length; i += 1) {
+      //   const currentData = lotHistory[i];
+      //   const obj = {
+      //     history_id: currentData.id,
+      //     lot_id: lotId
+      //   };
+
+      //   const stoneToProcessData = await DbService.getStoneToProcessData(obj);
+      //   currentData.stoneToProcessData = stoneToProcessData;
+      //   if (
+      //     currentData.status === "planning" &&
+      //     currentData.start_date &&
+      //     currentData.end_date
+      //   ) {
+      //     const planData = await DbService.getPlanDetailOfRoughBasedOnHistoryId(
+      //       obj
+      //     );
+      //     currentData.detailData = planData;
+      //   }
+      //   if (
+      //     currentData.status === "ls" &&
+      //     currentData.start_date &&
+      //     currentData.end_date
+      //   ) {
+      //     const lsData = await DbService.getLsDetailOfRoughBasedOnHistoryId(
+      //       obj
+      //     );
+      //     currentData.detailData = lsData;
+      //   }
+
+      //   if (
+      //     currentData.status === "block" &&
+      //     currentData.start_date &&
+      //     currentData.end_date
+      //   ) {
+      //     const blockData = await DbService.getBlockDetailOfRoughBasedOnHistoryId(
+      //       obj
+      //     );
+      //     currentData.detailData = blockData;
+      //   }
+      // }
+      // console.log(
+      //   "totalLotLabour",
+      //   totalLotLabourValue,
+      //   "totalWeight",
+      //   totalLotWeight
+      // );
+      const responseObj = {
+        // totalLabour: totalLotLabourValue,
+        // totalWeight: totalLotWeight,
+        roughs: stoneHistory
+      };
+      return Promise.resolve(responseObj);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
   static async getPlanDetailOfRough(req, res) {
     try {
       const { lot_id: lotUuid } = req.query;
@@ -511,6 +630,10 @@ module.exports = class Rough {
             stone_name: currentData.stoneName,
             weight: currentData.weight,
             unit: currentData.unit,
+            cut: currentData.cut,
+            shape: currentData.shape,
+            color: currentData.color,
+            purity: currentData.purity,
             created_by: id,
             updated_by: id,
             created_at: new Date().toISOString(),
@@ -518,7 +641,8 @@ module.exports = class Rough {
           };
           await DbService.insertRecordToDb(stoneProcessObj, "stone_to_process");
           const stoneObj = {
-            stone_name: currentData.stoneName
+            stone_name: currentData.stoneName,
+            lot_id: lotId
           };
           const stoneData = await DbService.getStoneId(stoneObj);
           const stoneId = stoneData[0].id;
@@ -573,7 +697,7 @@ module.exports = class Rough {
       };
       const lotHistory = await DbService.getIdFromUuid(
         getHistoryIdReplacement,
-        "rough_history"
+        "lot_history"
       );
       console.log("lotHistory", lotHistory);
       const historyId = lotHistory[0].id;
@@ -610,7 +734,7 @@ module.exports = class Rough {
             const weight = parseFloat(currentData.weight) * 100;
             totalWeight += weight;
           } else {
-            totalWeight += currentData.weight;
+            totalWeight += parseFloat(currentData.weight);
           }
         }
         totalLabour = (labourRate * totalWeight) / 100;
@@ -642,7 +766,7 @@ module.exports = class Rough {
       // :uuid,:history_id,:lot_id,
       // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
       if (detailData && detailData.length > 0) {
-        for (let i = 0; i < detailData.length; i++) {
+        for (let i = 0; i < detailData.length; i += 1) {
           const currentData = detailData[i];
           const resultObj = {
             uuid: uuidv4(),
@@ -652,6 +776,10 @@ module.exports = class Rough {
             person_id: personId,
             weight: currentData.weight,
             unit: currentData.unit,
+            cut: currentData.cut,
+            shape: currentData.shape,
+            color: currentData.color,
+            purity: currentData.purity,
             is_deleted: false,
             is_active: true,
             created_at: new Date().toISOString(),
@@ -670,6 +798,10 @@ module.exports = class Rough {
               stone_name: currentData.stoneName,
               weight: currentData.weight,
               unit: currentData.unit,
+              cut: currentData.cut,
+              shape: currentData.shape,
+              color: currentData.color,
+              purity: currentData.purity,
               status: "ls",
               have_child: false,
               parent_id: null,
@@ -678,12 +810,32 @@ module.exports = class Rough {
               created_by: id,
               updated_by: id
             };
-            await DbService.insertRecordToDb(lsObj, "stones");
+            const stoneDetail = DbService.getStoneId(lsObj);
+            const stoneId = stoneDetail[0].id;
+            if (!stoneId) {
+              await DbService.insertRecordToDb(lsObj, "stones");
+            } else {
+              await DbService.updateStone(lsObj);
+            }
           } else if (status === "block") {
             await DbService.insertRecordToDb(resultObj, "block_result");
+            const repObj = {
+              stone_name: currentData.stoneName,
+              weight: currentData.weight,
+              unit: currentData.unit,
+              cut: currentData.cut,
+              shape: currentData.shape,
+              color: currentData.color,
+              purity: currentData.purity,
+              status: "block",
+              lot_id: lotId,
+              updated_at: new Date().toISOString(),
+              updated_by: id
+            };
+            await DbService.updateStone(repObj);
           }
+          return Promise.resolve();
         }
-        return Promise.resolve();
       }
     } catch (e) {
       Promise.reject(e);
@@ -758,7 +910,7 @@ module.exports = class Rough {
         };
         const lotHistory = await DbService.getIdFromUuid(
           getHistoryIdReplacement,
-          "rough_history"
+          "lot_history"
         );
         console.log("lotHistory", lotHistory);
         labourHistoryId = lotHistory[0].id;
@@ -964,7 +1116,7 @@ module.exports = class Rough {
     };
     const historyIdDetail = await DbService.getIdFromUuid(
       getIdReplacement,
-      "rough_history"
+      "lot_history"
     );
     const historyId = historyIdDetail[0].id;
     const replacementObj = {
@@ -1076,5 +1228,199 @@ module.exports = class Rough {
     };
     const stoneList = await DbService.getStoneList(replacementObj);
     return Promise.resolve(stoneList);
+  }
+
+  static async updateStoneToProcess(req, res) {
+    const { id } = req.userDetail;
+    const {
+      stoneToProcessId: stoneToProcessUuid,
+      historyId: historyUuid,
+      lotId: lotUuid,
+      status,
+      stoneName,
+      weight,
+      unit,
+      cut,
+      shape,
+      color,
+      purity
+    } = req.body;
+
+    if (!lotUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+
+    if (!stoneToProcessUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+    const lotId = lotDetail[0].id;
+
+    const updateStoneToProcessReplacement = {
+      uuid: stoneToProcessUuid,
+      updated_at: new Date().toISOString(),
+      updated_by: id,
+      lot_id: lotId
+    };
+
+    if (stoneName) {
+      updateStoneToProcessReplacement.stone_name = stoneName;
+    }
+    if (weight) {
+      updateStoneToProcessReplacement.weight = weight;
+    }
+    if (unit) {
+      updateStoneToProcessReplacement.unit = unit;
+    }
+    if (cut) {
+      updateStoneToProcessReplacement.cut = cut;
+    }
+    if (shape) {
+      updateStoneToProcessReplacement.shape = shape;
+    }
+    if (color) {
+      updateStoneToProcessReplacement.color = color;
+    }
+    if (purity) {
+      updateStoneToProcessReplacement.purity = purity;
+    }
+    await DbService.updateStoneToProcess(updateStoneToProcessReplacement);
+
+    // if (status === "ls" || status === "block") {
+    //   const replacementObj = {
+    //     lot_id: lotId
+    //   };
+    //   if (!historyUuid) {
+    //     throw { code: 409, msg: "no data found" };
+    //   }
+
+    //   const getHistoryIdReplacement = {
+    //     uuid: historyUuid
+    //   };
+    //   const lotHistory = await DbService.getIdFromUuid(
+    //     getHistoryIdReplacement,
+    //     "lot_history"
+    //   );
+    //   console.log("lotHistory", lotHistory);
+    //   const historyId = lotHistory[0].id;
+
+    //   const lastHistoryDetail = await DbService.getLastHistoryIdToUpdateStone(
+    //     replacementObj
+    //   );
+    //   const lastHistoryId = lastHistoryDetail[0].id;
+
+    //   if (historyId === lastHistoryId) {
+    //     await DbService.updateStone(updateStoneToProcessReplacement);
+    //   }
+    // }
+    return Promise.resolve();
+  }
+
+  static async updateProcessEndResult(req, res) {
+    const { id } = req.userDetail;
+    const {
+      resultId: resultUuid,
+      historyId: historyUuid,
+      lotId: lotUuid,
+      status,
+      stoneName,
+      weight,
+      unit,
+      cut,
+      shape,
+      color,
+      purity
+    } = req.body;
+
+    if (!lotUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+
+    if (!resultUuid) {
+      throw { code: 409, msg: "no data found" };
+    }
+
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+    const lotId = lotDetail[0].id;
+
+    const updateResultReplacement = {
+      uuid: resultUuid,
+      updated_at: new Date().toISOString(),
+      updated_by: id,
+      lot_id: lotId
+    };
+
+    if (stoneName) {
+      updateResultReplacement.stone_name = stoneName;
+    }
+    if (weight) {
+      updateResultReplacement.weight = weight;
+    }
+    if (unit) {
+      updateResultReplacement.unit = unit;
+    }
+    if (cut) {
+      updateResultReplacement.cut = cut;
+    }
+    if (shape) {
+      updateResultReplacement.shape = shape;
+    }
+    if (color) {
+      updateResultReplacement.color = color;
+    }
+    if (purity) {
+      updateResultReplacement.purity = purity;
+    }
+    if (status === "ls") {
+      await DbService.updateLsResult(updateResultReplacement);
+    } else if (status === "planning") {
+      await DbService.updatePlanResult(updateResultReplacement);
+    } else if (status === "block") {
+      await DbService.updateBlockResult(updateResultReplacement);
+    }
+
+    if (status === "ls" || status === "block") {
+      const replacementObj = {
+        lot_id: lotId
+      };
+      if (!historyUuid) {
+        throw { code: 409, msg: "no data found" };
+      }
+      console.log("----------------------------------------------1");
+      const getHistoryIdReplacement = {
+        uuid: historyUuid
+      };
+      const lotHistory = await DbService.getIdFromUuid(
+        getHistoryIdReplacement,
+        "lot_history"
+      );
+      console.log("----------------------------------------------2");
+
+      console.log("lotHistory", lotHistory);
+      const historyId = lotHistory[0].id;
+
+      const lastHistoryDetail = await DbService.getLastHistoryIdToUpdateStone(
+        replacementObj
+      );
+      const lastHistoryId = lastHistoryDetail[0].id;
+
+      if (historyId === lastHistoryId) {
+        await DbService.updateStone(updateStoneToProcessReplacement);
+      }
+    }
+    return Promise.resolve();
   }
 };

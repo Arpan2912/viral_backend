@@ -226,4 +226,61 @@ module.exports = class RoughController {
       CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
+
+  static async getStoneLastStatus(req, res) {
+    try {
+      const stoneList = await RoughService.getStoneLastStatus(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get stone list",
+        stoneList
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async getStoneHistory(req, res) {
+    try {
+      const stoneList = await RoughService.getStoneHistory(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "Get stone list",
+        stoneList
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async updateStoneToProcess(req, res) {
+    try {
+      await RoughService.updateStoneToProcess(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "stone to process updated successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
+  static async updateProcessEndResult(req, res) {
+    try {
+      await RoughService.updateProcessEndResult(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "stone  process end result updated successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      console.error("e", e);
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
 };

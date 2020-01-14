@@ -38,5 +38,18 @@ router
   .post(RoughController.updateLotHistory);
 
 router.route(roughRoute.getStoneList).get(RoughController.getStoneList);
+router
+  .route(roughRoute.getStoneLastStatus)
+  .get(RoughController.getStoneLastStatus);
+
+router.route(roughRoute.getStoneHistory).get(RoughController.getStoneHistory);
+
+router
+  .route(roughRoute.updateStoneToProcess)
+  .post(RoughController.updateStoneToProcess);
+
+router
+  .route(roughRoute.updateStatusEndResult)
+  .post(RoughController.updateProcessEndResult);
 
 module.exports = router;
