@@ -283,4 +283,19 @@ module.exports = class RoughController {
       CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
+
+  static async downloadPolishExcel(req, res) {
+    try {
+      await RoughService.downloadPolishExcel(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "download excel successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      console.error("e", e);
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
 };

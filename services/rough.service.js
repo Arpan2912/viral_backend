@@ -1,4 +1,6 @@
 const uuidv4 = require("uuidv4");
+const json2xls = require("json2xls");
+const fs = require("fs");
 const DbService = require("../services/db.service");
 
 module.exports = class Rough {
@@ -762,12 +764,12 @@ module.exports = class Rough {
         history_id: historyId
       };
       await DbService.updateLotHistory(obj);
-
       // :uuid,:history_id,:lot_id,
       // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
       if (detailData && detailData.length > 0) {
         for (let i = 0; i < detailData.length; i += 1) {
           const currentData = detailData[i];
+          console.log("currentData", currentData);
           const resultObj = {
             uuid: uuidv4(),
             history_id: historyId,
@@ -790,6 +792,21 @@ module.exports = class Rough {
           if (status === "planning") {
             await DbService.insertRecordToDb(resultObj, "plan_result");
           } else if (status === "ls") {
+            let fromStoneId = null;
+            if (currentData.from) {
+              const fromStoneName = currentData.from;
+              const replacementObj = {
+                stone_name: fromStoneName,
+                lot_id: lotId,
+                have_child: true,
+                updated_at: new Date().toISOString(),
+                updated_by: id
+              };
+
+              await DbService.updateStone(replacementObj);
+              const fromStoneData = await DbService.getStoneId(replacementObj);
+              fromStoneId = fromStoneData[0].id;
+            }
             await DbService.insertRecordToDb(resultObj, "ls_result");
             const lsObj = {
               uuid: uuidv4(),
@@ -804,17 +821,23 @@ module.exports = class Rough {
               purity: currentData.purity,
               status: "ls",
               have_child: false,
-              parent_id: null,
+              parent_id: fromStoneId,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               created_by: id,
               updated_by: id
             };
             const stoneDetail = DbService.getStoneId(lsObj);
-            const stoneId = stoneDetail[0].id;
+            const stoneId =
+              stoneDetail && stoneDetail[0] && stoneDetail[0].id
+                ? stoneDetail[0].id
+                : null;
             if (!stoneId) {
               await DbService.insertRecordToDb(lsObj, "stones");
             } else {
+              if (!currentData.from) {
+                delete lsObj.parent_id;
+              }
               await DbService.updateStone(lsObj);
             }
           } else if (status === "block") {
@@ -834,8 +857,8 @@ module.exports = class Rough {
             };
             await DbService.updateStone(repObj);
           }
-          return Promise.resolve();
         }
+        return Promise.resolve();
       }
     } catch (e) {
       Promise.reject(e);
@@ -1422,5 +1445,28 @@ module.exports = class Rough {
       }
     }
     return Promise.resolve();
+  }
+
+  static async downloadPolishExcel(req, res) {
+    const { lotId: lotUuid } = req.body;
+    const uploadPath = `${__dirname}/../public/`;
+    const fileName = `${uuidv4().toString()}.xlsx`;
+    const getIdReplacement = {
+      uuid: lotUuid
+    };
+    const lotDetail = await DbService.getIdFromUuid(
+      getIdReplacement,
+      "lot_data"
+    );
+    const lotId = lotDetail[0].id;
+
+    const replacementStoneObj = {
+      lot_id: lotId
+    };
+    const polishData = await DbService.getPolishDiamondDetail(
+      replacementStoneObj
+    );
+    const xls = json2xls(polishData);
+    fs.writeFileSync(`${uploadPath}${fileName}`, xls, "binary");
   }
 };

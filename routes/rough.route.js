@@ -52,4 +52,8 @@ router
   .route(roughRoute.updateStatusEndResult)
   .post(RoughController.updateProcessEndResult);
 
+router
+  .route(roughRoute.downloadPolishExcel)
+  .post(RoughController.downloadPolishExcel);
+
 module.exports = router;

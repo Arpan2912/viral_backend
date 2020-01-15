@@ -102,7 +102,7 @@ module.exports = {
         else true end
       )  offset :offset limit :limit
   )
-  select * from all_data`,
+  select * from all_data order by rough_name,lot_name`,
 
   qGetTotalLotCount: `select count(*) from lot_data as l 
   left join roughs as r  on r.id=l.rough_id 
@@ -216,7 +216,9 @@ module.exports = {
        when :is_search 
        then upper(r.rough_name) like upper(:search) 
        else true end
-     )  offset :offset limit :limit
+     )
+     and s.have_child=false
+     offset :offset limit :limit
     
   )
   select * from all_data order by rough_name,lot_name,stone_name`,
@@ -627,7 +629,7 @@ module.exports = {
     `,
 
   updateStones: replacement => {
-    let q = `update stone_to_process
+    let q = `update stones
          set updated_at=:updated_at,updated_by=:updated_by`;
     if (replacement.stone_name) {
       q += `,stone_name=:stone_name`;
@@ -689,6 +691,11 @@ module.exports = {
   (u_uuid,table_name,replacement,result,operation,created_at,updated_at,
     created_by,updated_by)
   values (:u_uuid,:table_name,:replacement,:result,:operation,
-    :created_at,:updated_at,:created_by,:updated_by)`
+    :created_at,:updated_at,:created_by,:updated_by)`,
+
+  getPolishDiamondDetail: `select stone_name,weight,unit from stones as s 
+    inner join stone_history as sh on sh.stone_id=s.id
+    inner join lot_history as lh on lh.id=sh.history_id
+    where lh.status='polish' and lh.end_date is not null and lh.lot_id=:lot_id`
   // insertRoughHistory: `insert into lot_history(uuid)`
 };

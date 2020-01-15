@@ -60,7 +60,8 @@ const {
   getStoneIdFromUuid,
   updateStoneToProcess,
   getLastHistoryIdToUpdateStone,
-  updateStones
+  updateStones,
+  getPolishDiamondDetail
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -457,6 +458,14 @@ module.exports = class DbService {
   static getLastHistoryIdToUpdateStone(replacemenObj) {
     return DbService.executeSqlQuery(
       getLastHistoryIdToUpdateStone,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getPolishDiamondDetail(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getPolishDiamondDetail,
       replacemenObj,
       "select"
     );
