@@ -360,6 +360,17 @@ module.exports = class Rough {
           );
           currentData.detailData = blockData;
         }
+
+        if (
+          currentData.status === "hpht" &&
+          currentData.start_date &&
+          currentData.end_date
+        ) {
+          const blockData = await DbService.getHphtDetailOfRoughBasedOnHistoryId(
+            obj
+          );
+          currentData.detailData = blockData;
+        }
       }
       console.log(
         "totalLotLabour",
@@ -789,8 +800,10 @@ module.exports = class Rough {
             created_by: id,
             updated_by: id
           };
+
           if (status === "planning") {
             await DbService.insertRecordToDb(resultObj, "plan_result");
+            await DbService.updateStone(stoneReplacementObj);
           } else if (status === "ls") {
             let fromStoneId = null;
             if (currentData.from) {
@@ -799,6 +812,7 @@ module.exports = class Rough {
                 stone_name: fromStoneName,
                 lot_id: lotId,
                 have_child: true,
+                status,
                 updated_at: new Date().toISOString(),
                 updated_by: id
               };
@@ -851,6 +865,22 @@ module.exports = class Rough {
               color: currentData.color,
               purity: currentData.purity,
               status: "block",
+              lot_id: lotId,
+              updated_at: new Date().toISOString(),
+              updated_by: id
+            };
+            await DbService.updateStone(repObj);
+          } else if (status === "hpht") {
+            await DbService.insertRecordToDb(resultObj, "hpht_result");
+            const repObj = {
+              stone_name: currentData.stoneName,
+              weight: currentData.weight,
+              unit: currentData.unit,
+              cut: currentData.cut,
+              shape: currentData.shape,
+              color: currentData.color,
+              purity: currentData.purity,
+              status: "hpht",
               lot_id: lotId,
               updated_at: new Date().toISOString(),
               updated_by: id
@@ -1182,6 +1212,10 @@ module.exports = class Rough {
         stoneDetail = await DbService.getBlockDetailOfRoughForHistoryId(
           replacementStoneObj
         );
+      } else if (historyStatusDetail.status === "hpht") {
+        stoneDetail = await DbService.getHphtDetailOfRoughForHistoryId(
+          replacementStoneObj
+        );
       }
 
       if (stoneDetail.length > 0) {
@@ -1413,9 +1447,11 @@ module.exports = class Rough {
       await DbService.updatePlanResult(updateResultReplacement);
     } else if (status === "block") {
       await DbService.updateBlockResult(updateResultReplacement);
+    } else if (status === "hpht") {
+      await DbService.updateHphtResult(updateResultReplacement);
     }
 
-    if (status === "ls" || status === "block") {
+    if (status === "ls" || status === "block" || status === "hpht") {
       const replacementObj = {
         lot_id: lotId
       };
@@ -1468,5 +1504,9 @@ module.exports = class Rough {
     );
     const xls = json2xls(polishData);
     fs.writeFileSync(`${uploadPath}${fileName}`, xls, "binary");
+    const obj = {
+      file: `localhost:3001/${fileName}`
+    };
+    return obj;
   }
 };

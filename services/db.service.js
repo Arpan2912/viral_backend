@@ -61,7 +61,13 @@ const {
   updateStoneToProcess,
   getLastHistoryIdToUpdateStone,
   updateStones,
-  getPolishDiamondDetail
+  getPolishDiamondDetail,
+  getHphtDetailForHistoryId,
+  getHphtDetailOfRough,
+  getHphtDetailOfRoughBasedOnHistoryId,
+  getHphtResultIdFromUuid,
+  insertHpHtResult,
+  updateHphtResult
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -135,6 +141,8 @@ module.exports = class DbService {
       q = insertLsResult;
     } else if (table === "block_result") {
       q = insertBlockResult;
+    } else if (table === "hpht_result") {
+      q = insertHpHtResult;
     } else if (table === "lot_data") {
       q = insertLotData;
     } else if (table === "user") {
@@ -253,6 +261,8 @@ module.exports = class DbService {
       q = getRoughHistoryIdFromUuid;
     } else if (table === "plan_result") {
       q = getPlanResultIdFromUuid;
+    } else if (table === "hpht_result") {
+      q = getHphtResultIdFromUuid;
     } else if (table === "lot_data") {
       q = getLotIdFromUuid;
     } else if (table === "stones") {
@@ -349,6 +359,15 @@ module.exports = class DbService {
     );
   }
 
+  static updateHphtResult(replacementObj) {
+    return DbService.executeSqlQuery(
+      updateHphtResult(replacementObj),
+      replacementObj,
+      "update",
+      "hpht_result"
+    );
+  }
+
   static getPlanDetailOfRough(replacemenObj) {
     return DbService.executeSqlQuery(
       getPlanDetailOfRough,
@@ -397,6 +416,22 @@ module.exports = class DbService {
     );
   }
 
+  static getHphtDetailOfRough(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getHphtDetailOfRough,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getHphtDetailOfRoughForHistoryId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getHphtDetailForHistoryId,
+      replacemenObj,
+      "select"
+    );
+  }
+
   static getPlanDetailOfRoughBasedOnHistoryId(replacemenObj) {
     return DbService.executeSqlQuery(
       getPlanDetailOfRoughBasedOnHistoryId,
@@ -416,6 +451,14 @@ module.exports = class DbService {
   static getBlockDetailOfRoughBasedOnHistoryId(replacemenObj) {
     return DbService.executeSqlQuery(
       getBlockDetailOfRoughBasedOnHistoryId,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getHphtDetailOfRoughBasedOnHistoryId(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getHphtDetailOfRoughBasedOnHistoryId,
       replacemenObj,
       "select"
     );

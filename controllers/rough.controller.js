@@ -286,11 +286,11 @@ module.exports = class RoughController {
 
   static async downloadPolishExcel(req, res) {
     try {
-      await RoughService.downloadPolishExcel(req, res);
+      const response = await RoughService.downloadPolishExcel(req, res);
 
       const responseObj = CommonService.prepareSuccessResponse(
         "download excel successfully",
-        null
+        response
       );
       return res.status(200).send(responseObj);
     } catch (e) {

@@ -11,6 +11,7 @@ module.exports = {
   getLotIdFromUuid: `select id,rough_id from lot_data where u_uuid=:uuid`,
   getRoughHistoryIdFromUuid: `select id from lot_history where u_uuid=:uuid`,
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
+  getHphtResultIdFromUuid: `select id from hpht_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
   getPersons: `select u_uuid as uuid,first_name,last_name,address,designation,
   company,phone,email from persons 
@@ -296,6 +297,18 @@ module.exports = {
   getBlockDetailForHistoryId: `select * from block_result
    where history_id=:history_id`,
 
+  getHphtDetailOfRough: `
+   with latest_plan as (
+     select max(history_id) from hpht_result where lot_id=:lot_id group by lot_id
+   )
+   select p.u_uuid as plan_id,p.stone_name,p.weight,p.unit,
+   p.history_id,h.u_uuid as history_uuid from hpht_result as p
+   inner join lot_history as h on h.id=p.history_id 
+   where history_id in (select max from latest_plan)`,
+
+  getHphtDetailForHistoryId: `select * from hpht_result 
+   where history_id=:history_id`,
+
   getPlanDetailOfRoughBasedOnHistoryId: `
   select u_uuid as uuid,stone_name,weight,unit,cut,shape,color,purity,
   history_id from plan_result 
@@ -309,6 +322,11 @@ module.exports = {
   getBlockDetailOfRoughBasedOnHistoryId: `
   select u_uuid as uuid,stone_name,weight,unit,cut,shape,color,purity,
   history_id from block_result
+  where lot_id=:lot_id and history_id=:history_id`,
+
+  getHphtDetailOfRoughBasedOnHistoryId: `
+  select u_uuid as uuid,stone_name,weight,unit,cut,shape,color,purity,
+  history_id from hpht_result
   where lot_id=:lot_id and history_id=:history_id`,
 
   insertRough: `insert into roughs (u_uuid,rough_name,price,
@@ -540,6 +558,49 @@ module.exports = {
       )`,
   updateBlockResult: replacement => {
     let q = `update block_result
+     set updated_at=:updated_at,updated_by=:updated_by`;
+    if (replacement.stone_name) {
+      q += `,stone_name=:stone_name`;
+    }
+    if (replacement.weight) {
+      q += `,weight=:weight`;
+    }
+    if (replacement.unit) {
+      q += `,unit=:unit`;
+    }
+    if (replacement.cut) {
+      q += `,cut=:cut`;
+    }
+    if (replacement.shape) {
+      q += `,shape=:shape`;
+    }
+    if (replacement.color) {
+      q += `,color=:color`;
+    }
+    if (replacement.purity) {
+      q += `,purity=:purity`;
+    }
+    if (replacement.hasOwnProperty("is_active")) {
+      q += `,is_active=:is_active`;
+    }
+    if (replacement.hasOwnProperty("is_deleted")) {
+      q += `,is_deleted=:is_deleted`;
+    }
+    q += ` where u_uuid=:uuid`;
+    return q;
+  },
+
+  insertHpHtResult: `insert into hpht_result 
+  (u_uuid,lot_id,history_id,stone_name,weight,unit,
+    cut,shape,color,purity,
+      is_active,is_deleted,created_by,updated_by,created_at,updated_at) 
+      values(
+        :uuid,:lot_id,:history_id,:stone_name,:weight,:unit,
+        :cut,:shape,:color,:purity,
+        :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
+      )`,
+  updateHphtResult: replacement => {
+    let q = `update hpht_result
      set updated_at=:updated_at,updated_by=:updated_by`;
     if (replacement.stone_name) {
       q += `,stone_name=:stone_name`;
