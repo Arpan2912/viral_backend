@@ -67,7 +67,8 @@ const {
   getHphtDetailOfRoughBasedOnHistoryId,
   getHphtResultIdFromUuid,
   insertHpHtResult,
-  updateHphtResult
+  updateHphtResult,
+  getLotDataFromUuid
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -509,6 +510,14 @@ module.exports = class DbService {
   static getPolishDiamondDetail(replacemenObj) {
     return DbService.executeSqlQuery(
       getPolishDiamondDetail,
+      replacemenObj,
+      "select"
+    );
+  }
+
+  static getLotDataFromUuid(replacemenObj) {
+    return DbService.executeSqlQuery(
+      getLotDataFromUuid,
       replacemenObj,
       "select"
     );

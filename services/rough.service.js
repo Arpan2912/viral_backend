@@ -308,6 +308,8 @@ module.exports = class Rough {
         getIdReplacement,
         "lot_data"
       );
+      let lotData = await DbService.getLotDataFromUuid(getIdReplacement);
+      lotData = lotData[0];
       const lotId = lotDetail[0].id;
       const replacementObj = {
         lot_id: lotId
@@ -381,7 +383,10 @@ module.exports = class Rough {
       const responseObj = {
         totalLabour: totalLotLabourValue,
         totalWeight: totalLotWeight,
-        roughs: lotHistory
+        roughs: lotHistory,
+        lot_name: lotData.lot_name,
+        rough_name: lotData.rough_name,
+        lot_id: lotUuid
       };
       return Promise.resolve(responseObj);
     } catch (e) {
@@ -803,7 +808,7 @@ module.exports = class Rough {
 
           if (status === "planning") {
             await DbService.insertRecordToDb(resultObj, "plan_result");
-            await DbService.updateStone(stoneReplacementObj);
+            // await DbService.updateStone(stoneReplacementObj);
           } else if (status === "ls") {
             let fromStoneId = null;
             if (currentData.from) {
