@@ -56,4 +56,6 @@ router
   .route(roughRoute.downloadPolishExcel)
   .post(RoughController.downloadPolishExcel);
 
+router.route(roughRoute.getAllLotList).get(RoughController.getAllLotList);
+
 module.exports = router;

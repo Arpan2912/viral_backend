@@ -98,7 +98,7 @@ module.exports = class PersonService {
 
   static async getPersons(req, res) {
     try {
-      let { page = "1", limit = "10", search } = req.query;
+      let { page = "1", limit = "10", search, from = null } = req.query;
       page = parseInt(page);
       if (page === "NaN") {
         page = 1;
@@ -111,6 +111,7 @@ module.exports = class PersonService {
       const replacementObj = {
         offset,
         limit,
+        from,
         search:
           search === "" || search === undefined || search === null
             ? null

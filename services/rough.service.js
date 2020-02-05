@@ -1514,4 +1514,13 @@ module.exports = class Rough {
     };
     return obj;
   }
+
+  static async getAllLotList(req, res) {
+    const { search } = req.query;
+    const replacementObj = {
+      lot_name: search
+    };
+    const lotList = await DbService.getAllLotList(replacementObj);
+    return lotList;
+  }
 };

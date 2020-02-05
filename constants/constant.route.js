@@ -29,6 +29,7 @@ module.exports = {
     getStoneList: "/get-stone-list",
     updateStoneToProcess: "/update-stone-to-process",
     updateStatusEndResult: "/update-status-result",
-    downloadPolishExcel: "/download-polish-excel"
+    downloadPolishExcel: "/download-polish-excel",
+    getAllLotList: "/get-all-lot-list"
   }
 };

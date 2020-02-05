@@ -68,7 +68,8 @@ const {
   getHphtResultIdFromUuid,
   insertHpHtResult,
   updateHphtResult,
-  getLotDataFromUuid
+  getLotDataFromUuid,
+  getAllLotList
 } = require("../constants/constant.query");
 
 module.exports = class DbService {
@@ -190,7 +191,11 @@ module.exports = class DbService {
   }
 
   static getPersons(replacemenObj = {}) {
-    return DbService.executeSqlQuery(getPersons, replacemenObj, "select");
+    return DbService.executeSqlQuery(
+      getPersons(replacemenObj),
+      replacemenObj,
+      "select"
+    );
   }
 
   static getPersonCount(replacemenObj = {}) {
@@ -521,5 +526,9 @@ module.exports = class DbService {
       replacemenObj,
       "select"
     );
+  }
+
+  static getAllLotList(replacemenObj) {
+    return DbService.executeSqlQuery(getAllLotList, replacemenObj, "select");
   }
 };

@@ -298,4 +298,19 @@ module.exports = class RoughController {
       CommonService.logErrorAndSendResponse(e, res, null);
     }
   }
+
+  static async getAllLotList(req, res) {
+    try {
+      const response = await RoughService.getAllLotList(req, res);
+
+      const responseObj = CommonService.prepareSuccessResponse(
+        "download excel successfully",
+        response
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      console.error("e", e);
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
 };

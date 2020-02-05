@@ -14,7 +14,8 @@ module.exports = {
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getHphtResultIdFromUuid: `select id from hpht_result where u_uuid=:uuid`,
   getPersonIdFromUuid: `select id from persons where u_uuid=:uuid`,
-  getPersons: `select u_uuid as uuid,first_name,last_name,address,designation,
+  getPersons: replacement => {
+    let q = `select u_uuid as uuid,first_name,last_name,concat (first_name,' ',last_name) as full_name,address,designation,
   company,phone,email from persons 
   where 
   (
@@ -25,9 +26,12 @@ module.exports = {
            upper(designation) like upper(:search) or
            upper(phone) like upper(:search) 
       else true end
-  )
-  offset :offset limit :limit  
-  `,
+  )`;
+    if (replacement.from !== "dropdown") {
+      q += `offset :offset limit :limit `;
+    }
+    return q;
+  },
 
   getPersonCount: `select count(*) from persons
   where 
@@ -60,6 +64,8 @@ module.exports = {
   `,
 
   getLotHistoryData: `select * from lot_history where id=:history_id`,
+  getAllLotList: `select l.u_uuid,l.lot_name,r.rough_name from lot_data as l 
+  inner join roughs as r on l.rough_id=r.id where lower(lot_name)=lower(:lot_name)`,
   getRoughCount: `select count(*) from roughs 
   where
   (
