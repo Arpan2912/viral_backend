@@ -22,6 +22,7 @@ module.exports = {
     getBlockDetailOfRough: "/get-block-detail",
     addRoughHistory: "/add-rough-history",
     updateRoughHistory: "/update-rough-history",
+    startAndEndRoughHistory: "/start-end-rough-history",
     getRoughList: "/get-rough-list",
     getLotList: "/get-lot-list",
     getLotStoneList: "/get-lot-stone-list",

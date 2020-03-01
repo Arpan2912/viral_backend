@@ -200,6 +200,20 @@ module.exports = class RoughController {
     }
   }
 
+  static async startAndEndRoughHistory(req, res) {
+    try {
+      await RoughService.startAndEndRoughHistory(req, res);
+      const responseObj = CommonService.prepareSuccessResponse(
+        "add rough history successfully",
+        null
+      );
+      return res.status(200).send(responseObj);
+    } catch (e) {
+      console.error("e", e);
+      CommonService.logErrorAndSendResponse(e, res, null);
+    }
+  }
+
   static async updateLotHistory(req, res) {
     try {
       await RoughService.updateLotHistory(req, res);

@@ -585,6 +585,49 @@ module.exports = class Rough {
     }
   }
 
+  static async startAndEndRoughHistory(req, res) {
+    const { userDetail } = req;
+    const {
+      stoneToProcess,
+      resultStone,
+      lotId: lotUuid,
+      startPersonId: startPersonUuid,
+      endPersonId: endPersonUuid,
+      status,
+      labourRate = null,
+      dollar = null
+    } = req.body;
+
+    const addHistoryObj = {
+      userDetail
+    };
+    addHistoryObj.body = {
+      stoneToProcess,
+      lotId: lotUuid,
+      personId: startPersonUuid,
+      status
+    };
+
+    const historyUuid = await Rough.addRoughHistory(addHistoryObj, res);
+
+    const updateRoughHistoryObj = {};
+    updateRoughHistoryObj.userDetail = userDetail;
+    updateRoughHistoryObj.body = {
+      detailData: resultStone,
+      lotId: lotUuid,
+      status,
+      historyId: historyUuid,
+      personId: endPersonUuid,
+      labourRate,
+      // totalLabour = null,
+      // totalWeight = null,
+      dollar
+    };
+    console.log("updateRoughHistoryObj", updateRoughHistoryObj.body);
+    await Rough.updateRoughHistory(updateRoughHistoryObj, res);
+    return Promise.resolve();
+  }
+
   static async addRoughHistory(req, res) {
     const { id } = req.userDetail;
     const {
@@ -635,7 +678,9 @@ module.exports = class Rough {
       };
       let historyId = await DbService.insertRecordToDb(obj, "lot_history");
       console.log("historyId", historyId);
+      const historyUUid = historyId[0][0].u_uuid;
       historyId = historyId[0][0].id;
+
       // :uuid,:history_id,:lot_id,
       // :stone_name,:weight,:unit,:created_by,:updated_by,:created_at,:updated_at
       if (stoneToProcess && stoneToProcess.length > 0) {
@@ -677,7 +722,9 @@ module.exports = class Rough {
 
           await DbService.insertRecordToDb(replacementObj, "stone_history");
         }
-        return Promise.resolve();
+        return Promise.resolve(historyUUid);
+      } else {
+        return Promise.resolve(historyUUid);
       }
     } catch (e) {
       return Promise.reject(e);
@@ -685,6 +732,7 @@ module.exports = class Rough {
   }
 
   static async updateRoughHistory(req, res) {
+    console.log("update rough history", req.body);
     const { id } = req.userDetail;
     const {
       detailData,

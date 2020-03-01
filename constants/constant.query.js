@@ -9,7 +9,8 @@ module.exports = {
   getStoneIdFromUuid: `select id from stones where u_uuid=:uuid`,
   getRoughIdFromUuid: `select id from roughs where u_uuid=:uuid`,
   getLotIdFromUuid: `select id,rough_id from lot_data where u_uuid=:uuid`,
-  getLotDataFromUuid: `select lot_name,rough_name from lot_data as l inner join roughs as r on l.rough_id=r.id where l.u_uuid=:uuid`,
+  getLotDataFromUuid: `select lot_name,rough_name from lot_data as l 
+  inner join roughs as r on l.rough_id=r.id where l.u_uuid=:uuid`,
   getRoughHistoryIdFromUuid: `select id from lot_history where u_uuid=:uuid`,
   getPlanResultIdFromUuid: `select id from plan_result where u_uuid=:uuid`,
   getHphtResultIdFromUuid: `select id from hpht_result where u_uuid=:uuid`,
@@ -441,7 +442,7 @@ module.exports = {
     values (
       :uuid,:lot_id,:status,:person_id,:start_date,
       :is_active,:is_deleted,:created_by,:updated_by,:created_at,:updated_at
-    ) returning id`,
+    ) returning id,u_uuid`,
 
   updateLotHistory: replacement => {
     let q = `update  lot_history 

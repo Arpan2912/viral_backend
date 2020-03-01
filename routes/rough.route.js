@@ -14,6 +14,10 @@ router
   .route(roughRoute.updateRoughHistory)
   .post(RoughController.updateRoughHistory);
 
+router
+  .route(roughRoute.startAndEndRoughHistory)
+  .post(RoughController.startAndEndRoughHistory);
+
 router.route(roughRoute.getRough).get(RoughController.getRough);
 router.route(roughRoute.getLotHistory).get(RoughController.getLotHistory);
 
