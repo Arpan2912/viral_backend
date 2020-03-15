@@ -164,6 +164,11 @@ module.exports = {
     left join stone_to_process as stp on stp.history_id=h.id
     inner join roughs as r on r.id=l.rough_id
     where h.lot_id=:lot_id 
+    and 
+    case 
+      when :from='end-process' then h.end_date is  null
+      else true
+    end
     group by
     l.lot_name,r.rough_name,l.u_uuid,
     h.labour_rate,h.dollar,

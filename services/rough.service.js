@@ -297,7 +297,7 @@ module.exports = class Rough {
 
   static async getLotHistory(req, res) {
     try {
-      const { lot_id: lotUuid = null } = req.query;
+      const { lot_id: lotUuid = null, from } = req.query;
       if (!lotUuid) {
         throw { code: 409, msg: "no data found" };
       }
@@ -312,7 +312,8 @@ module.exports = class Rough {
       lotData = lotData[0];
       const lotId = lotDetail[0].id;
       const replacementObj = {
-        lot_id: lotId
+        lot_id: lotId,
+        from: from || ""
       };
       console.log(replacementObj);
       const lotHistory = await DbService.getLotHistory(replacementObj);
@@ -723,9 +724,8 @@ module.exports = class Rough {
           await DbService.insertRecordToDb(replacementObj, "stone_history");
         }
         return Promise.resolve(historyUUid);
-      } else {
-        return Promise.resolve(historyUUid);
       }
+      return Promise.resolve(historyUUid);
     } catch (e) {
       return Promise.reject(e);
     }
