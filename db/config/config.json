@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "arpan",
+    "username": "ACER",
     "password": "123",
-    "database": "viraldiamond",
+    "database": "diamond_tracker",
     "host": "localhost",
     "dialect": "postgres"
   },
